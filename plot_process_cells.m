@@ -1,5 +1,5 @@
 % load data
-datadir = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20250713/730_left/slit_24/analysis';
+datadir = '/ad\eng/research/eng_research_economo2/SFS/TICO2/20250713/730_left/slit_24/analysis';
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
 
