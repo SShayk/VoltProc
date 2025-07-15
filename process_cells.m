@@ -1,0 +1,239 @@
+addpath '/ad/eng/users/s/s/sshayk/My Documents/MATLAB/SpikeTriggeredPlots'
+
+impath = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20250703/FOV2/FOV2_SLM.raw';
+
+file_add = {'00002', '00003', '00004', '00005'};
+
+
+
+[filedir, filename, filetype] = fileparts(impath);
+savedir = fullfile(filedir,'analysis');
+if ~exist(savedir, 'dir'), mkdir(savedir), end
+
+
+fs = 800;
+bg = 100;
+NF = 9000;
+%% 
+reader = FrameReader(impath);
+im = double(reader.getFrames(200));
+       
+
+
+%% select ROIs
+if exist(fullfile(savedir,'rois.mat'),'file')
+    load(fullfile(savedir,'rois.mat'))
+    disp('loaded ROIs')
+else
+
+figure, imagesc(mean(im(:,:,1:100),3))
+if ~exist('roimat','var')
+    roimat = [];
+end
+end
+%%
+e = drawellipse;
+pause
+roimat = cat(3, roimat, e.createMask);
+
+
+
+%%
+NR = size(roimat,3);
+tr = [];
+
+f_load = NF;
+f_int = 100;
+
+%% get traces for each file
+tic
+for nfile = 1:(1+length(file_add))
+    
+    if nfile == 1
+        reader = FrameReader(impath);
+    else
+        reader = FrameReader(fullfile(filedir,[filename,'_',file_add{nfile-1},filetype]));
+    end
+    if nfile ==5, f_load = 5800;end
+loadflag = false;
+while ~loadflag
+    if f_load<=0
+        return;
+    end
+    try
+        im = double(reader.getFrames(f_load));
+        loadflag = true;
+    catch
+        f_load = f_load - f_int;
+        fprintf('%d files too much, trying %d\n', f_load + f_int, f_load)
+    end
+    if loadflag
+        if nfile > 1
+         fprintf('\nloaded %s\n',[filename,'_',file_add{nfile-1}])
+        else
+          fprintf('\nloaded %s\n',filename)
+        end   
+        toc
+    end
+   
+end
+
+tr_cur = zeros(NR, size(im,3));
+for nf = 1:size(tr_cur,2)
+    cur_im = im(:,:,nf);
+    for nr = 1:NR
+        tr_cur(nr,nf) = mean(cur_im(logical(roimat(:,:,nr))));
+    end
+end
+    tr = [tr, tr_cur];
+    clearvars tr_cur
+end
+tr = tr- bg;
+%%
+
+nframes = size(tr,2);
+
+% cut to desired time
+t_inds = [1 nframes];
+
+tvec = (1:nframes)*(1/fs);
+
+figure, plot(tvec,tr)
+xlabel('time (s)')
+ylabel('F')
+
+
+%% filter
+
+f_det = zeros(size(tr));
+f_hp = zeros(size(tr));
+f_hp_mean = zeros(size(tr));
+f_dr = zeros(size(tr));
+f_ur = zeros(size(tr));
+N_f = zeros(size(tr));
+F_AP = zeros(size(tr));
+for nr = 1:NR
+    f_det(nr,:) = highpass(squeeze(-tr(nr,:)),1,fs); % detrend
+    f_hp(nr,:) = highpass(squeeze(f_det(nr,:)),50,fs); % remove subthreshold activity
+    f_hp_mean(nr,:)  = movmean(f_hp(nr,:).',2*round(0.2*fs));
+    f_dr(nr,:)  = min([f_hp(nr,:); f_hp_mean(nr,:)]);
+    f_ur(nr,:)  = max([f_hp(nr,:); f_hp_mean(nr,:)]);
+    N_f(nr,:) = 2*movstd(f_dr(nr,:).',2*round(1*fs));
+    
+end
+%%
+win_detect = -round(fs*.003):-1;
+for nr = 1:NR
+    for nt = (-win_detect(1)+1):length(f_det)
+        F_AP(nr,nt) = max(f_det(nr,nt) - f_det(nr,nt + win_detect));
+    end
+end
+dF_ur = [zeros(NR,1), diff(f_ur.').'];
+dF_dr = [zeros(NR,1), diff(f_dr.').'];
+
+%% get spike locations
+    t_s = zeros(size(tr));
+
+    C1 = dF_ur > movmean(dF_ur,2*(1*fs)) + 3*movstd(dF_dr,2*(1*fs));
+    C2 = f_det > movmean(f_det,2*(0.1*fs),2) + 3*N_f;
+    C3 = F_AP > 4*N_f;
+    t_s = C1 & C2 & C3;
+
+
+
+
+%% plot traces
+
+
+figure
+for nr = 1:NR
+  
+    subplot(1,NR, nr)
+    hold on
+    plot(-tr(nr,:),'k')
+    yyaxis right, plot(f_det(nr,:),'b')
+end
+
+%%
+figure
+YL = [0 0];
+for nr = 1:NR
+    subplot(1,NR, nr)   
+    hold on
+    plot(tvec,f_hp(nr,:),'k')
+    plot(tvec,f_hp_mean(nr,:),'r')
+    scatter(tvec(t_s(nr,:)), f_hp(nr,t_s(nr,:)),'r','filled')
+    xlim([1 tvec(end)-1])
+    if min(ylim)<YL(1)
+        YL(1) = min(ylim);
+    end
+    if max(ylim)>YL(2)
+        YL(2) = max(ylim);
+    end
+end
+
+for nr = 1:NR
+    subplot(1,NR, nr)   
+    ylim(YL)
+end
+
+%% get SNR
+
+
+snr = f_hp./N_f;
+
+figure
+hold on
+for nr = 1:NR
+    if nnz(t_s(nr,:))
+        scatter(nr*ones(1,nnz(t_s(nr,:))), snr(nr,logical(t_s(nr,:))),30,'filled')
+    end
+end
+xlim([0.5, NR + 0.5])
+ylim([0 max(ylim)])
+% get dF/F
+dff= NaN(size(t_s));
+dff(logical(t_s)) = f_hp(logical(t_s))./f_hp_mean(logical(t_s));
+
+%%
+figure
+YL = [0 0];
+
+for nr = 1:NR
+    subplot(1,NR, nr)   
+    hold on
+    plot(tvec,snr(nr,:),'k')
+    scatter(tvec(t_s(nr,:)), snr(nr,t_s(nr,:)),'r','filled')
+    xlabel('time (s)')
+    ylabel('SNR')
+    xlim([1 tvec(end)-1])
+    if min(ylim)<YL(1)
+        YL(1) = min(ylim);
+    end
+    if max(ylim)>YL(2)
+        YL(2) = max(ylim);
+    end
+end
+
+for nr = 1:NR
+    subplot(1,NR, nr)   
+    ylim(YL)
+end
+
+
+%% save
+if ~exist(fullfile(savedir,'rois.mat'),'file')
+    save(fullfile(savedir,'rois.mat'),'roimat')
+    disp('saved ROIs')
+else
+    disp('did not save ROIs')
+end
+
+if ~exist(fullfile(savedir,'signal.mat'),'file')
+    save(fullfile(savedir,'signal.mat'),'tr','fs')
+    disp('saved signal')
+else
+    disp('did not save signal')
+end
+
+
