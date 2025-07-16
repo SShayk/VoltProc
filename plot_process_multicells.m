@@ -31,15 +31,9 @@ for ns = 1:NS
     F_proc{ns} = process_voltage(tr_all{ns});
     [F_proc{ns}.F_AP, F_proc{ns}.parameters_AP] = calc_APs(F_proc{ns}.F_det);
     [F_proc{ns}.F_0, F_proc{ns}.parameters_0] = calc_F0(tr_all{ns});
-end
-
     %% get spike locations
-    t_s{ns} = zeros(size(tr_all{ns}));
+    [F_proc{ns}.t_s, F_proc{ns}.parameters_kspikes] = get_spike_locations(F_proc{ns}.F_det, F_proc{ns}.F_AP, F_proc{ns}.N_f, F_proc{ns}.dF_ur, F_proc{ns}.dF_dr); 
 
-    C1 = dF_ur{ns} > movmean(dF_ur{ns},2*(1*fs)) + 3*movstd(dF_dr{ns},2*(1*fs));
-    C2 = f_det{ns} > movmean(f_det{ns},2*(0.1*fs),2) + 3*N_f{ns};
-    C3 = F_AP{ns} > 4*N_f{ns};
-    t_s{ns} = C1 & C2 & C3;
 
 
         F_nospike{ns} = tr_all{ns};

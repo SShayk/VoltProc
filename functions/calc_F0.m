@@ -5,7 +5,7 @@ function [F0, parameters] = calc_F0(F_in, varargin)
 % calc_F0(F_in, f_lp, fs) filters at chosen frequency f_lp Hz
 %
 % Inputs: 
-%   F_in: vector or 2D matrix of detrended voltage trace data [rows = rois/traces, cols = timepoints] 
+%   F_in: vector or 2D matrix of spike-removed voltage trace data [rows = rois/traces, cols = timepoints] 
 %   Optional inputs:
 %       f_lp: lowpass cutoff frequency in Hz (default 1)
 %       fs: sampling frequency in Hz (default 800)
