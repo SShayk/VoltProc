@@ -29,9 +29,20 @@ win_detect = -round(fs*.003):-1;
 F_proc = cell(1,NS);
 for ns = 1:NS
     F_proc{ns} = process_voltage(tr_all{ns});
-    [F_proc{ns}.F_AP, F_proc{ns}.parameters_AP] = calc_APs(F_proc{ns}.F_det);
-    [F_proc{ns}.F_0, F_proc{ns}.parameters_0] = calc_F0(tr_all{ns});
+[F_proc{ns}.F_AP, F_proc{ns}.parameters_AP] = calc_APs(tr_all{ns});
+
+ F_0{ns}(nr,:) = lowpass(tr_all{ns}(nr,:),1,fs);
+
+
+    for nt = (-win_detect(1)+1):length(f_det{ns})
+        F_AP{ns}(nr,nt) = max(f_det{ns}(nr,nt) - f_det{ns}(nr,nt + win_detect));
+    end
+
+
+
 end
+    dF_ur{ns} = [zeros(NR,1), diff(f_ur{ns}.').'];
+    dF_dr{ns} = [zeros(NR,1), diff(f_dr{ns}.').'];
 
     %% get spike locations
     t_s{ns} = zeros(size(tr_all{ns}));

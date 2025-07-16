@@ -6,19 +6,15 @@ load(fullfile(datadir,'rois.mat'))
 NR = size(roimat,3);
 nframes = size(tr,2);
 tvec = (1:nframes)*(1/fs);
+
 %%
 F_proc = process_voltage(tr);
 [F_proc.F_AP, F_proc.params_AP] = calc_APs(F_proc.F_det);
-
+[F_proc.F_0, F_proc.params_0] = calc_F0(tr);
 
 %% get spike locations
 
-C1 = dF_ur > movmean(dF_ur,2*(1*fs)) + 3*movstd(dF_dr,2*(1*fs));
-C2 = f_det > movmean(f_det,2*(0.1*fs),2) + 3*N_f;
-C3 = F_AP > 4*N_f;
-t_s = C1 & C2 & C3;
-
-
+[t_s, F_proc.parameters_kspikes] = get_spike_locations(F_proc.F_det, F_proc.F_AP, F_proc.N_f, F_proc.dF_ur, F_proc.dF_dr); 
     
 %% get baselines
     F_nospike = tr;
