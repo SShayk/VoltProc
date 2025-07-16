@@ -51,6 +51,9 @@ end
     Fp.N_f = 2*movstd(Fp.F_dr.',2*round(t_av_nf*fs)).'; % calculate noise floor
 
 
+    Fp.dF_ur = [zeros(size(tr,1),1), diff(Fp.F_ur.').']; %d/dt of upward-rectified trace
+    Fp.dF_dr = [zeros(size(tr,1),1), diff(Fp.F_dr.').']; %d/dt of downward-rectified trace
+
 % save parameters
 Fp.parameters.fs = fs;
 Fp.parameters.f_hp_det = f_hp_det;

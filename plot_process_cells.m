@@ -10,9 +10,6 @@ tvec = (1:nframes)*(1/fs);
 F_proc = process_voltage(tr);
 [F_proc.F_AP, F_proc.params_AP] = calc_APs(F_proc.F_det);
 
-dF_ur = [zeros(NR,1), diff(F_proc.F_ur.').'];
-dF_dr = [zeros(NR,1), diff(F_proc.F_dr.').'];
-
 
 %% get spike locations
 
