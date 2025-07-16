@@ -8,18 +8,19 @@ nframes = size(tr,2);
 tvec = (1:nframes)*(1/fs);
 %%
 F_proc = process_voltage(tr);
-[F_proc.F_AP, F_proc.params_AP] = calc_APs(F_proc.F_det);
+[F_AP, AP_params] = calc_APs(F_proc.F_det);
 
-dF_ur = [zeros(NR,1), diff(F_proc.F_ur.').'];
-dF_dr = [zeros(NR,1), diff(F_proc.F_dr.').'];
+dF_ur = [zeros(NR,1), diff(F_proc.f_ur.').'];
+dF_dr = [zeros(NR,1), diff(F_proc.f_dr.').'];
 
 
 %% get spike locations
+    t_s = zeros(size(tr));
 
-C1 = dF_ur > movmean(dF_ur,2*(1*fs)) + 3*movstd(dF_dr,2*(1*fs));
-C2 = f_det > movmean(f_det,2*(0.1*fs),2) + 3*N_f;
-C3 = F_AP > 4*N_f;
-t_s = C1 & C2 & C3;
+    C1 = dF_ur > movmean(dF_ur,2*(1*fs)) + 3*movstd(dF_dr,2*(1*fs));
+    C2 = f_det > movmean(f_det,2*(0.1*fs),2) + 3*N_f;
+    C3 = F_AP > 4*N_f;
+    t_s = C1 & C2 & C3;
 
 
     
