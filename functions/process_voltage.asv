@@ -2,8 +2,13 @@ function Fp = process_voltage(tr, varargin)
 %process_voltage extracts signal components from Voltron voltage trace data
 % Inputs: 
 %   tr: vector or 2D matrix of raw voltage trace data [rows = rois/traces, cols = timepoints] 
-%   Optional ("Name", value) inputs
-%   
+%   Optional {'Name', value} inputs:
+%       'fs': sampling frequency in Hz (default 800)
+%       'fDetrend': frequency in Hz at which to highpass signal for detrending (default 1)
+%       'fSubthreshold': frequency in Hz at which to highpass signal for removing Vm fluctuations (default 50)
+%       'Tmean': time window in seconds used to get baseline of filtered trace (default 0.2)
+%       'Tstdev': time window in seconds used to get standard deviation to calculate noise (default 1)
+%           'Tmean' and 'Tstdev' are the window width on either side of the current frame, so ~half of length of full window
 % Outputs:
 %   Fp: struct containing each trace/component as a field, as well as a
 %   parameters field with each parameter as a subfield
@@ -15,16 +20,22 @@ f_hp_det = 1; % Hz, frequency at which to detrend
 f_hp_vm = 50; % Hz, frequency at which to filter out Vm fluctuations
 
 t_av_hp = 0.2; % s (+/-), moving average window to get baseline of highpass filtered trace
+t_av_nf = 1; % s (+/-), moving stdev window to get noise floor of trace
 
 if nargin > 1
     p = inputParser;
-end
+    addParameter(p,'fs',fs, @(x)isnumeric);
+    addParameter(p,'fDetrend',f_hp_det, @(x)isnumeric);
+    addParameter(p,'fSubthreshold',f_hp_vm, @(x)isnumeric);
+    addParameter(p,'Tmean',t_av_hp, @(x)isnumeric);
+    addParameter(p,'Tstdev',t_av_nf, @(x)isnumeric);
 
-f_hp_mean = zeros(size(tr));
-f_dr = zeros(size(tr));
-f_ur = zeros(size(tr));
-N_f = zeros(size(tr));
-F_AP = zeros(size(tr));
+    fs = p.Results.fs;
+    f_hp_det = p.results.fDetrend;
+    f_hp_vm = p.results.fSubthreshold;
+    t_av_hp = p.results.Tmean;
+    t_av_nf = p.results.Tstdev;
+end
 
     Fp.F_det = -highpass(tr.',f_hp_det,fs).'; % detrend to remove bleaching decay, 
                                                 % and invert so that Voltron spikes are positive
@@ -35,7 +46,7 @@ F_AP = zeros(size(tr));
     Fp.F_dr  = min(cat(3,Fp.F_hp, Fp.F_hp_mean),[],3); % get downward-rectified trace (noise only)
     Fp.F_ur =  max(cat(3,Fp.F_hp, Fp.F_hp_mean),[],3); % get upward-rectified trace (contains spikes)
     
-    N_f(nr,:) = 2*movstd(f_dr(nr,:).',2*round(1*fs)); % calculate noise floor
+    Fp.N_f = 2*movstd(Fp.F_dr.',2*round(t_av_nf*fs)).'; % calculate noise floor
 
 
 % save parameters
@@ -43,4 +54,5 @@ Fp.parameters.fs = fs;
 Fp.parameters.f_hp_det = f_hp_det;
 Fp.parameters.f_hp_vm = f_hp_vm;
 Fp.parameters.t_av_hp = t_av_hp;
+Fp.parameters.t_av_nf = t_av_nf;
 end

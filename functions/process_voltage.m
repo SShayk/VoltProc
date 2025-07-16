@@ -2,8 +2,13 @@ function Fp = process_voltage(tr, varargin)
 %process_voltage extracts signal components from Voltron voltage trace data
 % Inputs: 
 %   tr: vector or 2D matrix of raw voltage trace data [rows = rois/traces, cols = timepoints] 
-%   Optional ("Name", value) inputs
-%   
+%   Optional ('Name', value) inputs:
+%       'fs': sampling frequency in Hz (default 800)
+%       'fDetrend': frequency in Hz at which to highpass signal for detrending (default 1)
+%       'fSubthreshold': frequency in Hz at which to highpass signal for removing Vm fluctuations (default 50)
+%       'Tmean': time window in seconds used to get baseline of filtered trace (default 0.2)
+%       'Tstdev': time window in seconds used to get standard deviation to calculate noise (default 1)
+%           'Tmean' and 'Tstdev' are the window width on either side of the current frame, so ~half of length of full window
 % Outputs:
 %   Fp: struct containing each trace/component as a field, as well as a
 %   parameters field with each parameter as a subfield
@@ -19,6 +24,19 @@ t_av_nf = 1; % s (+/-), moving stdev window to get noise floor of trace
 
 if nargin > 1
     p = inputParser;
+    addRequired(p,'tr',@isnumeric)
+    addParameter(p,'fs',fs, @(x)isnumeric(x));
+    addParameter(p,'fDetrend',f_hp_det, @(x)isnumeric(x));
+    addParameter(p,'fSubthreshold',f_hp_vm, @(x)isnumeric(x));
+    addParameter(p,'Tmean',t_av_hp, @(x)isnumeric(x));
+    addParameter(p,'Tstdev',t_av_nf, @(x)isnumeric(x));
+    parse(p, tr, varargin{:})
+
+    fs = p.Results.fs;
+    f_hp_det = p.Results.fDetrend;
+    f_hp_vm = p.Results.fSubthreshold;
+    t_av_hp = p.Results.Tmean;
+    t_av_nf = p.Results.Tstdev;
 end
 
     Fp.F_det = -highpass(tr.',f_hp_det,fs).'; % detrend to remove bleaching decay, 

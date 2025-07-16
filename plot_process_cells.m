@@ -7,23 +7,11 @@ NR = size(roimat,3);
 nframes = size(tr,2);
 tvec = (1:nframes)*(1/fs);
 %%
+Fp = process_voltage(tr);
 
-f_det = zeros(size(tr));
-f_hp = zeros(size(tr));
-f_hp_mean = zeros(size(tr));
-f_dr = zeros(size(tr));
-f_ur = zeros(size(tr));
-N_f = zeros(size(tr));
+
 F_AP = zeros(size(tr));
-for nr = 1:NR
-    f_det(nr,:) = highpass(squeeze(-tr(nr,:)),1,fs); % detrend
-    f_hp(nr,:) = highpass(squeeze(f_det(nr,:)),50,fs); % remove subthreshold activity
-    f_hp_mean(nr,:)  = movmean(f_hp(nr,:).',2*round(0.2*fs));
-    f_dr(nr,:)  = min([f_hp(nr,:); f_hp_mean(nr,:)]);
-    f_ur(nr,:)  = max([f_hp(nr,:); f_hp_mean(nr,:)]);
-    N_f(nr,:) = 2*movstd(f_dr(nr,:).',2*round(1*fs));
-    
-end
+
 %%
 win_detect = -round(fs*.003):-1;
 for nr = 1:NR
