@@ -14,30 +14,13 @@ F_proc = process_voltage(tr);
 %% get spike locations
 [F_proc.t_s, F_proc.parameters_kspikes] = get_spike_locations(F_proc.F_det, F_proc.F_AP, F_proc.N_f, F_proc.dF_ur, F_proc.dF_dr); 
     
-%% get Vm
-[F_proc.F_sub, F_proc.F_nospike, F_proc.params_baselines] = get_subthreshold_trace(tr, F_proc.t_s);
+%% get Vm and other baseline calculations
+[F_proc.F_sub, F_proc.F_nospike, F_proc.F_0, F_proc.params_baselines] = get_subthreshold_trace(tr, F_proc.t_s);
 
-%% get baselines
-[F_proc.F_0, F_proc.params_0] = calc_F0(F_proc.F_nospike);
 
-%% get baselines
-    F_nospike = tr;
-    nos_window = -round(.001*fs):round(.002*fs);
-    for nr = 1:NR
-        cur_mm = movmean(tr(nr,:),round(.005*fs));
-        for ks = find(t_s(nr,:))
-            F_nospike(nr,ks+nos_window) = cur_mm(ks+nos_window);
-        end
-    end
-
-    for nr = 1:NR
-        F_0(nr,:) = lowpass(tr(nr,:),1,fs);
-        F_sub(nr,:) = bandpass(F_nospike(nr),[1 50], fs);
-    end
 
 
 %% plot traces
-
 
 figure
 for nr = 1:NR

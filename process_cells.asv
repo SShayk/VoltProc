@@ -60,11 +60,10 @@ for nfile = 1:(1+length(file_add))
         reader = FrameReader(impath);
     else
         if strcmp(filename(1:4),'File')
-            reader = FrameReader(fullfile(filedir,['File_',file_add{nfile-1},filetype]));
-        else
             reader = FrameReader(fullfile(filedir,[filename,'_',file_add{nfile-1},filetype]));
+        else
+            reader = FrameReader(fullfile(filedir,[filename(1),'_',file_add{nfile-1},filetype]));
         end
-    end
 
     im = double(reader.getFrames(reader.maxFrames));
     % if nfile ==5, f_load = 5800;end
