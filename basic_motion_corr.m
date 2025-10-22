@@ -55,7 +55,7 @@ if exist(fullfile(filedir,'MC',[filename,'_mc.mat']),'file')
 load(fullfile(filedir,'MC',[filename,'_mc.mat']))
 
 else
-options_rigid = NoRMCorreSetParms('d1',size(im,1),'d2',size(im,2),'bin_width',200,'max_shift',15,'us_fac',50,'init_batch',200);
+options_rigid = NoRMCorreSetParms('d1',size(im,1),'d2',size(im,2),'bin_width',200,'max_shift',15,'us_fac',50,'init_batch',20);
 
 
 tic; [M1,shifts1,template1,options_rigid] = normcorre(single(im-bg),options_rigid); toc
