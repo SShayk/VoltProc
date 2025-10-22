@@ -33,9 +33,6 @@ bg = 100;
 reader = FrameReader(impath);
 im_ref = mean(double(reader.getFrames(100)),3);
        
-
-
-
 %% select ROIs
 if exist(fullfile(savedir,'rois.mat'),'file')
     load(fullfile(savedir,'rois.mat'))
@@ -43,28 +40,20 @@ if exist(fullfile(savedir,'rois.mat'),'file')
     figure('Name','loaded ROIs'), imagesc(im_ref.*(1 - double(any(roimat,3)).*0.2) );axis image;axis off;colormap(gray);drawnow
 else
 
-    figure, imagesc(im_ref), axis image
+    H = figure; imagesc(im_ref), axis image, colormap gray, axis off
     roimat = [];
     e = drawellipse;
-    pause
-    while isvalid(e)
+    while isvalid(H)
+        pause
         bw = createMask(e);
         if nnz(bw)
             roimat = cat(3, roimat,bw);
-            imagesc(averageFrame.*(1 - double(any(roimat,3)).*0.2) );axis image;axis off;colormap(gray);drawnow
+            imagesc(im_ref.*(1 - double(any(roimat,3)).*0.2) );axis image;axis off;colormap(gray);drawnow
         end
         e = drawellipse;
-        pause
     end
 end
 
-
-  
-% %%
-% e = drawellipse;
-% pause
-% roimat = cat(3, roimat, e.createMask);
-% return
 
 %% for motion correction
 if exist(fullfile(savedir,'mask.mat'),'file')
@@ -72,20 +61,29 @@ if exist(fullfile(savedir,'mask.mat'),'file')
     disp('loaded mask')
 else
     maskmat = zeros(size(im_ref)); 
+    H = figure; imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4)), axis image, colormap gray, axis off, drawnow
+
+    e = drawrectangle;
+    while isvalid(H)
+        
+        pause
+        bw = createMask(e);
+        if nnz(bw)
+            maskmat = maskmat | bw;
+            imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat).*0.2) );axis image;axis off;colormap(gray);drawnow
+        end
+        e = drawrectangle;
+    end
 end
 %%
-e = drawrectangle;
-pause
-maskmat = e.createMask | maskmat;
-return
+
 
 
 %%
 NR = size(roimat,3);
 tr_all = [];
+translation =[];
 
-% f_load = NF;
-% f_int = 100;
 
 %% get traces for each file
 tic
@@ -95,34 +93,13 @@ for nfile = 1:length(all_files)
 
     im = double(reader.getFrames(reader.maxFrames));
     % motion correct
-    translation = masked_phase_cross_correlation(im, im_ref,maskmat);
+    translation_cur = masked_phase_cross_correlation(im, im_ref,maskmat);
     im_t = zeros(size(im));
     for k = 1:size(im,3)
-        im_t(:,:,k) = circshift(im(:,:,k), translation(k,:));
+        im_t(:,:,k) = circshift(im(:,:,k), translation_cur(k,:));
     end
-    % if nfile ==5, f_load = 5800;end
-% loadflag = false;
-% while ~loadflag
-%     if f_load<=0
-%         return;
-%     end
-%     try
-%         im = double(reader.getFrames(f_load));
-%         loadflag = true;
-%     catch
-%         f_load = f_load - f_int;
-%         fprintf('%d files too much, trying %d\n', f_load + f_int, f_load)
-%     end
-%     if loadflag
-%         if nfile > 1
-%          fprintf('\nloaded %s\n',[filename,'_',file_add{nfile-1}])
-%         else
-%           fprintf('\nloaded %s\n',filename)
-%         end   
         toc
-    % end
 
-% end
 
 tr_cur = zeros(NR, size(im,3));
 for nf = 1:size(tr_cur,2)
@@ -132,7 +109,8 @@ for nf = 1:size(tr_cur,2)
     end
 end
     tr_all = [tr_all, tr_cur];
-    clearvars tr_cur
+    translation = cat(1, translation, translation_cur);
+    clearvars tr_cur translation_cur
 end
 tr_all = tr_all- bg;
 %%
@@ -140,7 +118,6 @@ tr_all = tr_all- bg;
 nframes = size(tr_all,2);
 
 % cut to desired time
-% t_inds = 7200:8500; 
 t_inds = 1:nframes;
 
 tr = tr_all(:,t_inds);
@@ -188,7 +165,6 @@ dF_dr = [zeros(NR,1), diff(f_dr.').'];
     C2 = f_det > movmean(f_det,2*(0.1*fs),2) + 3*N_f;
     C3 = F_AP > 4*N_f;
     t_s = C1 & C2 & C3;
-
 
 %% plot traces
 
@@ -287,6 +263,13 @@ if ~exist(fullfile(savedir,'mask.mat'),'file') && exist('maskmat','var')
     disp('saved MC mask')
 else
     disp('did not save MC mask')
+end
+
+if ~exist(fullfile(savedir,'translation.mat'),'file') && exist('translation','var')
+    save(fullfile(savedir,'translation.mat'),'translation')
+    disp('saved translation')
+else
+    disp('did not save translation')
 end
 
 if ~exist(fullfile(savedir,'signal.mat'),'file')
