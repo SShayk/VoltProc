@@ -40,18 +40,17 @@ if exist(fullfile(savedir,'rois.mat'),'file')
     figure('Name','loaded ROIs'), imagesc(im_ref.*(1 - double(any(roimat,3)).*0.2) );axis image;axis off;colormap(gray);drawnow
 else
 
-    figure, imagesc(im_ref), axis image
+    H = figure; imagesc(im_ref), axis image, colormap gray, axis off
     roimat = [];
     e = drawellipse;
-    pause
-    while isvalid(e)
+    while isvalid(H)
+        pause
         bw = createMask(e);
         if nnz(bw)
             roimat = cat(3, roimat,bw);
             imagesc(im_ref.*(1 - double(any(roimat,3)).*0.2) );axis image;axis off;colormap(gray);drawnow
         end
         e = drawellipse;
-        pause
     end
 end
 
@@ -60,26 +59,31 @@ end
 if exist(fullfile(savedir,'mask.mat'),'file')
     load(fullfile(savedir,'mask.mat'))
     disp('loaded mask')
-else
+else    
+    [file,location] = uigetfile('.mat', 'select SLM ROIs, or cancel to hand-select ROIs');
+    
+    if isnumeric(file)
     maskmat = zeros(size(im_ref)); 
-    figure, imagesc(im_ref), axis image
+    
+    H = figure; imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4)), axis image, colormap gray, axis off, drawnow
 
-    e = drawellipse;
-    pause
-    while isvalid(e)
+    e = drawrectangle;
+    while isvalid(H)
+        
+        pause
         bw = createMask(e);
         if nnz(bw)
             maskmat = maskmat | bw;
-            imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat.*0.2) );axis image;axis off;colormap(gray);drawnow
+            imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat).*0.2) );axis image;axis off;colormap(gray);drawnow
         end
-        e = drawellipse;
-        pause
+        e = drawrectangle;
     end
-
-e = drawrectangle;
-pause
-maskmat = e.createMask | maskmat;
-return
+    else
+        R = load(fullfile(file,location));
+        maskmat = any(reshape(cell2mat(ROIs),size(im_ref,1),size(im_ref,2),[]);
+        figure
+        imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat).*0.2) );axis image;axis off;colormap(gray);drawnow
+    end
 end
 %%
 

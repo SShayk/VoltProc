@@ -59,8 +59,12 @@ end
 if exist(fullfile(savedir,'mask.mat'),'file')
     load(fullfile(savedir,'mask.mat'))
     disp('loaded mask')
-else
+else    
+    [file,location] = uigetfile('.mat', 'select SLM ROIs, or cancel to hand-select ROIs');
+    
+    if isnumeric(file)
     maskmat = zeros(size(im_ref)); 
+    
     H = figure; imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4)), axis image, colormap gray, axis off, drawnow
 
     e = drawrectangle;
@@ -73,6 +77,13 @@ else
             imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat).*0.2) );axis image;axis off;colormap(gray);drawnow
         end
         e = drawrectangle;
+    end
+    
+    else
+        R = load(fullfile(file,location));
+        maskmat = any(reshape(cell2mat(R.ROIs),size(im_ref,1),size(im_ref,2),[]),3);
+        figure
+        imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat).*0.2) );axis image;axis off;colormap(gray);drawnow
     end
 end
 %%
