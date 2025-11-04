@@ -17,8 +17,10 @@ addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\SpikeTrigg
 % impath = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20251019/948/fov1/800Hz_100p_SLM/acq.raw';
 % impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251019/948/fov2/z120_100p_800Hz/acq.raw';
 % impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251019/948/fov2/z80_100p_800Hz/acq.raw';
-impath = '\\ad\eng\research\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\acq.raw';
+% impath = '\\ad\eng\research\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\acq.raw';
 
+
+impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/948/acq_800Hz_60p_SLM.raw';
 
 [filedir, filename, filetype] = fileparts(impath);
 savedir = fullfile(filedir,'analysis');
@@ -78,9 +80,10 @@ else
         end
         e = drawrectangle;
     end
+
     else
         R = load(fullfile(file,location));
-        maskmat = any(reshape(cell2mat(ROIs),size(im_ref,1),size(im_ref,2),[]);
+        maskmat = any(reshape(cell2mat(R.ROIs),size(im_ref,1),size(im_ref,2),[]),3);
         figure
         imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat).*0.2) );axis image;axis off;colormap(gray);drawnow
     end
@@ -91,7 +94,7 @@ end
 
 %%
 NR = size(roimat,3);
-tr_all = [];
+tr = [];
 translation =[];
 
 
@@ -118,146 +121,12 @@ for nf = 1:size(tr_cur,2)
         tr_cur(nr,nf) = mean(cur_im(logical(roimat(:,:,nr))));
     end
 end
-    tr_all = [tr_all, tr_cur];
+    tr = [tr, tr_cur];
     translation = cat(1, translation, translation_cur);
     clearvars tr_cur translation_cur
 end
-tr_all = tr_all- bg;
-%%
+tr = tr- bg;
 
-nframes = size(tr_all,2);
-
-% cut to desired time
-t_inds = 1:nframes;
-
-tr = tr_all(:,t_inds);
-
-tvec = t_inds*(1/fs);
-
-figure('Name','F') 
-plot(tvec,tr)
-xlabel('time (s)')
-ylabel('F')
-
-
-%% filter
-
-f_det = zeros(size(tr));
-f_hp = zeros(size(tr));
-f_hp_mean = zeros(size(tr));
-f_dr = zeros(size(tr));
-f_ur = zeros(size(tr));
-N_f = zeros(size(tr));
-F_AP = zeros(size(tr));
-for nr = 1:NR
-    f_det(nr,:) = highpass(squeeze(-tr(nr,:)),1,fs); % detrend
-    f_hp(nr,:) = highpass(squeeze(f_det(nr,:)),50,fs); % remove subthreshold activity
-    f_hp_mean(nr,:)  = movmean(f_hp(nr,:).',2*round(0.2*fs));
-    f_dr(nr,:)  = min([f_hp(nr,:); f_hp_mean(nr,:)]);
-    f_ur(nr,:)  = max([f_hp(nr,:); f_hp_mean(nr,:)]);
-    N_f(nr,:) = 2*movstd(f_dr(nr,:).',2*round(1*fs));
-    
-end
-%%
-win_detect = -round(fs*.003):-1;
-for nr = 1:NR
-    for nt = (-win_detect(1)+1):length(f_det)
-        F_AP(nr,nt) = max(f_det(nr,nt) - f_det(nr,nt + win_detect));
-    end
-end
-dF_ur = [zeros(NR,1), diff(f_ur.').'];
-dF_dr = [zeros(NR,1), diff(f_dr.').'];
-
-%% get spike locations
-    t_s = zeros(size(tr));
-
-    C1 = dF_ur > movmean(dF_ur,2*(1*fs)) + 3*movstd(dF_dr,2*(1*fs));
-    C2 = f_det > movmean(f_det,2*(0.1*fs),2) + 3*N_f;
-    C3 = F_AP > 4*N_f;
-    t_s = C1 & C2 & C3;
-
-%% plot traces
-
-figure('Name','detrending')
-for nr = 1:NR
-    subplot(1,NR, nr)
-    hold on
-    plot(-tr(nr,:),'k')
-    yyaxis right, plot(f_det(nr,:),'b')
-    if nr == 1
-        legend('negative trace','highpass-filtered')
-    end
-end
-
-%%
-figure('Name','spike locations')
-YL = [0 0];
-for nr = 1:NR
-    subplot(1,NR, nr)   
-    hold on
-    plot(tvec,f_hp(nr,:),'k')
-    plot(tvec,f_hp_mean(nr,:),'r')
-    scatter(tvec(t_s(nr,:)), f_hp(nr,t_s(nr,:)),'r','filled')
-    xlim([tvec(1) tvec(end)])
-    if min(ylim)<YL(1)
-        YL(1) = min(ylim);
-    end
-    if max(ylim)>YL(2)
-        YL(2) = max(ylim);
-    end
-
-    if nr == 1
-        legend('highpass filtered (detrended and Vm removed)','moving average', 'spikes')
-    end
-end
-
-for nr = 1:NR
-    subplot(1,NR, nr)   
-    ylim(YL)
-end
-
-%% get SNR
-
-
-snr = f_hp./N_f;
-
-figure
-hold on
-for nr = 1:NR
-    if nnz(t_s(nr,:))
-        scatter(nr*ones(1,nnz(t_s(nr,:))), snr(nr,logical(t_s(nr,:))),30,'filled')
-    end
-end
-xlim([0.5, NR + 0.5])
-ylim([0 max(ylim)])
-% get dF/F
-dff= NaN(size(t_s));
-dff(logical(t_s)) = f_hp(logical(t_s))./f_hp_mean(logical(t_s));
-
-%%
-figure
-YL = [0 0];
-
-for nr = 1:NR
-    subplot(1,NR, nr)   
-    hold on
-    plot(tvec,snr(nr,:),'k')
-    scatter(tvec(t_s(nr,:)), snr(nr,t_s(nr,:)),'r','filled')
-    xlabel('time (s)')
-    ylabel('SNR')
-    xlim([tvec(1) tvec(end)])
-    if min(ylim)<YL(1)
-        YL(1) = min(ylim);
-    end
-    if max(ylim)>YL(2)
-        YL(2) = max(ylim);
-    end
-end
-
-for nr = 1:NR
-    subplot(1,NR, nr)   
-    ylim(YL)
-end
 
 
 %% save

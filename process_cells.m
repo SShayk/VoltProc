@@ -17,8 +17,11 @@ addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\SpikeTrigg
 % impath = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20251019/948/fov1/800Hz_100p_SLM/acq.raw';
 % impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251019/948/fov2/z120_100p_800Hz/acq.raw';
 % impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251019/948/fov2/z80_100p_800Hz/acq.raw';
-impath = '\\ad\eng\research\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\acq.raw';
+% impath = '\\ad\eng\research\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\acq.raw';
 
+
+% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/948/acq_800Hz_60p_SLM.raw';
+impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/831_1/acq_800Hz_60p.raw';
 
 [filedir, filename, filetype] = fileparts(impath);
 savedir = fullfile(filedir,'analysis');
@@ -92,7 +95,7 @@ end
 
 %%
 NR = size(roimat,3);
-tr_all = [];
+tr = [];
 translation =[];
 
 
@@ -119,11 +122,11 @@ for nf = 1:size(tr_cur,2)
         tr_cur(nr,nf) = mean(cur_im(logical(roimat(:,:,nr))));
     end
 end
-    tr_all = [tr_all, tr_cur];
+    tr = [tr, tr_cur];
     translation = cat(1, translation, translation_cur);
     clearvars tr_cur translation_cur
 end
-tr_all = tr_all- bg;
+tr = tr- bg;
 
 
 

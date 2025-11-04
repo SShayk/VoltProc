@@ -8,7 +8,9 @@ addpath(genpath('/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/analyze_voltag
 % datadir = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20251019/948/fov1/800Hz_100p_SLM/analysis';
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251019\948\fov1\800Hz_100p_SLM\analysis';
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z120_100p_800Hz\analysis';
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\analysis';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\analysis';
+
+datadir = 
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
 
