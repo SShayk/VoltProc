@@ -1,5 +1,8 @@
 addpath(genpath('/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/analyze_voltage'))
 addpath(genpath('\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage'))
+
+addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
+
 % load data
 % datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20250910/851/800Hz/analysis';
 % datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20250930/Voltron_594/888/left_window/FOV1/800Hz/analysis';
@@ -10,18 +13,33 @@ addpath(genpath('\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage')
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251019\948\fov1\800Hz_100p_SLM\analysis';
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z120_100p_800Hz\analysis';
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\analysis';
+ 
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251103\948\analysis_800Hz_60p_SLM';
+datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\948\FOV1\analysis';
 
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251103\948\analysis_800Hz_60p_SLM';
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
-
-%%%
-roimat = roimat(:,:,[1 3]);
-%%%
-
-NR = size(roimat,3);
 nframes = size(tr,2);
 tvec = (1:nframes)*(1/fs);
+
+%%%% 
+% ROIs to view 
+roi_use = [2];
+roimat = roimat(:,:,roi_use);
+tr = tr(roi_use,:);
+
+% valid timepoints
+k_valid = true(size(tvec));
+k_valid(tvec<0.8) = 0;
+k_valid(tvec>59) = 0;
+
+k_valid(tvec>19&tvec<27.5) = 0;
+
+%%%
+
+tvec_valid = tvec(k_valid);
+NR = size(roimat,3);
+
 
 %% get F values 
 F_proc = process_voltage(tr);
@@ -40,13 +58,13 @@ for nr = 1:NR
     subplot(1,NR, nr)
     hold on
     
-    plot(tvec,-tr(nr,:),'k')
-    yyaxis right, plot(tvec,F_proc.F_det(nr,:),'b')
+    plot(tvec_valid,-tr(nr,k_valid),'k')
+    yyaxis right, plot(tvec_valid,F_proc.F_det(nr,k_valid),'b')
     ax = gca;
     ax.YAxis(1).Color = [0 0 0];
     ax.YAxis(2).Color = [0 0 1];
     xlabel('time (s)')
-    ylabel('F')
+    ylabel('-F')
     if nr == 1
         legend('negative trace','highpass-filtered')
     end
@@ -57,11 +75,11 @@ figure('Name','detrended F only')
 for nr = 1:NR
     subplot(1,NR, nr)
     hold on
-    plot(tvec,F_proc.F_det(nr,:),'k')
+    plot(tvec_valid,F_proc.F_det(nr,k_valid),'k')
      if nnz(F_proc.t_s(nr,:))
-        scatter(tvec(F_proc.t_s(nr,:)), F_proc.F_det(nr,logical(F_proc.t_s(nr,:))),30,'r','filled')
+        scatter(tvec_valid(F_proc.t_s(nr,k_valid)), F_proc.F_det(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'r','filled')
      end
-     ylabel('F')
+     ylabel('-F')
      xlabel('time (s)')
 end
 whitefig
@@ -72,17 +90,17 @@ YL = [0 0];
 for nr = 1:NR
     subplot(1,NR, nr)   
     hold on
-    plot(tvec,F_proc.F_hp(nr,:),'k')
-    plot(tvec,F_proc.F_hp_mean(nr,:),'r')
-    scatter(tvec(F_proc.t_s(nr,:)), F_proc.F_hp(nr,F_proc.t_s(nr,:)),'r','filled')
-    xlim([1 tvec(end)-1])
+    plot(tvec_valid,F_proc.F_hp(nr,k_valid),'k')
+    plot(tvec_valid,F_proc.F_hp_mean(nr,k_valid),'r')
+    scatter(tvec_valid(F_proc.t_s(nr,k_valid)), F_proc.F_hp(nr,F_proc.t_s(nr,:)&k_valid),'r','filled')
+    xlim([1 tvec_valid(end)-1])
     if min(ylim)<YL(1)
         YL(1) = min(ylim);
     end
     if max(ylim)>YL(2)
         YL(2) = max(ylim);
     end
-         ylabel('F')
+         ylabel('-F')
      xlabel('time (s)')
 end
 
@@ -105,8 +123,8 @@ snr_AP = F_proc.F_AP./F_proc.N_f; % only valid at detected spikes
 figure('Name','SNR (AP)')
 hold on
 for nr = 1:NR
-    if nnz(F_proc.t_s(nr,:))
-        scatter(nr*ones(1,nnz(F_proc.t_s(nr,:))), snr_AP(nr,logical(F_proc.t_s(nr,:))),30,'filled')
+    if nnz(F_proc.t_s(nr,k_valid))
+        scatter(nr*ones(1,nnz(F_proc.t_s(nr,k_valid))), snr_AP(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'filled')
     end
 end
 xlabel('roi')
@@ -123,13 +141,13 @@ hold on
 for nr = 1:NR
     subplot(1,NR, nr)   
     hold on
-    plot(tvec,snr_trace(nr,:),'k')
+    plot(tvec_valid,snr_trace(nr,k_valid),'k')
 
      if nnz(F_proc.t_s(nr,:))
-        scatter(tvec(F_proc.t_s(nr,:)), snr_trace(nr,logical(F_proc.t_s(nr,:))),30,'r','filled')
+        scatter(tvec_valid(F_proc.t_s(nr,k_valid)), snr_trace(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'r','filled')
      end
 
-    xlim([1 tvec(end)-1])
+    xlim([1 tvec_valid(end)-1])
     if min(ylim)<YL(1)
         YL(1) = min(ylim);
     end
@@ -155,7 +173,7 @@ figure('Name','DFF (AP)')
 hold on
 for nr = 1:NR
     if nnz(F_proc.t_s(nr,:))
-        scatter(nr*ones(1,nnz(F_proc.t_s(nr,:))), dff_AP(nr,logical(F_proc.t_s(nr,:))),30,'filled')
+        scatter(nr*ones(1,nnz(F_proc.t_s(nr,k_valid))), dff_AP(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'filled')
     end
 end
 xlim([0.5, NR + 0.5])
@@ -171,20 +189,20 @@ hold on
 for nr = 1:NR
     subplot(1,NR, nr)   
     hold on
-    plot(tvec,dff_trace(nr,:),'k')
+    plot(tvec_valid,dff_trace(nr,k_valid),'k')
 
      if nnz(F_proc.t_s(nr,:))
-        scatter(tvec(F_proc.t_s(nr,:)), dff_trace(nr,logical(F_proc.t_s(nr,:))),30,'r','filled')
+        scatter(tvec_valid(F_proc.t_s(nr,k_valid)), dff_trace(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'r','filled')
      end
 
-    xlim([1 tvec(end)-1])
+    xlim([1 tvec_valid(end)-1])
     if min(ylim)<YL(1)
         YL(1) = min(ylim);
     end
     if max(ylim)>YL(2)
         YL(2) = max(ylim);
     end
-    ylabel('\DeltaF/F')
+    ylabel('-\DeltaF/F')
     xlabel('time (s)')
 end
 for nr = 1:NR
@@ -202,7 +220,7 @@ figure('Name','d prime')
 hold on
 for nr = 1:NR
     if nnz(F_proc.t_s(nr,:))
-        scatter(nr*ones(1,nnz(F_proc.t_s(nr,:))), d_p(nr,logical(F_proc.t_s(nr,:))),30,'filled')
+        scatter(nr*ones(1,nnz(F_proc.t_s(nr,k_valid))), d_p(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'filled')
     end
 end
 xticks(1:NR)

@@ -21,8 +21,9 @@ addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\SpikeTrigg
 
 
 % impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/948/acq_800Hz_60p_SLM.raw';
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/831_1/acq_800Hz_60p.raw';
-impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/831_2/acq_800Hz_60p_forSLMmask2.raw';
+% % impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/831_1/acq_800Hz_60p.raw';
+% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/831_2/acq_800Hz_60p_forSLMmask2.raw';
+impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251106/948/FOV1/800Hz_70p_SLM.raw';
 
 [filedir, filename, filetype] = fileparts(impath);
 savedir = fullfile(filedir,'analysis');
