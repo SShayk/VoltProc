@@ -1,4 +1,4 @@
-addpath(genpath('/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/analyze_voltage'))
+   addpath(genpath('/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/analyze_voltage'))
 addpath(genpath('\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage'))
 
 addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
@@ -15,7 +15,11 @@ addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\analysis';
  
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251103\948\analysis_800Hz_60p_SLM';
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\948\FOV1\analysis';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\948\FOV1\analysis';
+
+% datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO1/20250829/948/800Hz/20250829-151115/analysis';
+% datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO1/20250829/850/FOV1/800Hz/20250829-152857/analysis';
+datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\831_2\FOV3_potential_reVolt\analysis';
 
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
@@ -24,16 +28,17 @@ tvec = (1:nframes)*(1/fs);
 
 %%%% 
 % ROIs to view 
-roi_use = [2];
+% roi_use = 1:size(roimat,3);
+roi_use = [1 5 7];
 roimat = roimat(:,:,roi_use);
 tr = tr(roi_use,:);
 
 % valid timepoints
 k_valid = true(size(tvec));
-k_valid(tvec<0.8) = 0;
-k_valid(tvec>59) = 0;
+% k_valid(tvec<0.8) = 0;
+% k_valid(tvec>59) = 0;
 
-k_valid(tvec>19&tvec<27.5) = 0;
+% k_valid(tvec>19&tvec<27.5) = 0;
 
 %%%
 
@@ -213,7 +218,7 @@ whitefig
 
 
 %% get d'
-tau = 0.8;
+tau = 0.8*1e-3; % decay time [s] (assumed 0.8 ms for Voltron2 and ReVolt, as in TICO paper)
 d_p = tau*fs*(1-exp(-1/(tau*fs)))*F_proc.F_AP./sqrt(F_proc.F_0*fs);
 
 figure('Name','d prime')
