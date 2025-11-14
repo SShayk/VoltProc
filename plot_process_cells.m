@@ -15,11 +15,11 @@ addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\analysis';
  
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251103\948\analysis_800Hz_60p_SLM';
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\948\FOV1\analysis';
+datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\948\FOV1\analysis';
 
 % datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO1/20250829/948/800Hz/20250829-151115/analysis';
 % datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO1/20250829/850/FOV1/800Hz/20250829-152857/analysis';
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\831_2\FOV3_potential_reVolt\analysis';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\831_2\FOV3_potential_reVolt\analysis';
 
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
@@ -28,8 +28,8 @@ tvec = (1:nframes)*(1/fs);
 
 %%%% 
 % ROIs to view 
-% roi_use = 1:size(roimat,3);
-roi_use = [1 5 7];
+roi_use = 1:size(roimat,3);
+% roi_use = [1 5 7];
 roimat = roimat(:,:,roi_use);
 tr = tr(roi_use,:);
 
@@ -38,7 +38,7 @@ k_valid = true(size(tvec));
 % k_valid(tvec<0.8) = 0;
 % k_valid(tvec>59) = 0;
 
-% k_valid(tvec>19&tvec<27.5) = 0;
+k_valid(tvec>20&tvec<30) = 0;
 
 %%%
 
@@ -218,9 +218,16 @@ whitefig
 
 
 %% get d'
+gain = 0.25; % camera gain. to calculate photon count
 tau = 0.8*1e-3; % decay time [s] (assumed 0.8 ms for Voltron2 and ReVolt, as in TICO paper)
-d_p = tau*fs*(1-exp(-1/(tau*fs)))*F_proc.F_AP./sqrt(F_proc.F_0*fs);
 
+
+d_p = zeros(size(F_proc.t_s));
+for nr = 1:NR
+    NP = nnz(roimat(:,:,nr)); % calculate total photons
+    d_p(nr,:) = tau*fs*(1-exp(-1/(tau*fs)))*F_proc.F_AP(nr,:)*gain*NP./sqrt(F_proc.F_0(nr,:)*gain*NP);
+end
+% d_p = sqrt(((F_proc.F_AP.^2)./(F_proc.F_0*fs)));
 figure('Name','d prime')
 hold on
 for nr = 1:NR
@@ -234,3 +241,31 @@ ylim([0 max(ylim)])
 title('d''')
 whitefig
 
+%%
+figure
+subplot(4,1,1), hold on
+for nr = 1:NR
+    scatter(tvec(logical(F_proc.t_s(nr,:)&k_valid)), dff_AP(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'filled')
+end
+ylabel('\DeltaF/F')
+
+subplot(4,1,2), hold on
+for nr = 1:NR
+    scatter(tvec(logical(F_proc.t_s(nr,:)&k_valid)), d_p(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'filled')
+end
+ylabel('d''')
+
+subplot(4,1,3), hold on
+for nr = 1:NR
+    scatter(tvec(logical(F_proc.t_s(nr,:)&k_valid)), F_proc.F_0(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'filled')
+end
+ylabel('F_{0}')
+
+subplot(4,1,4), hold on
+for nr = 1:NR
+    scatter(tvec(logical(F_proc.t_s(nr,:)&k_valid)), F_proc.F_AP(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'filled')
+end
+ylabel('F_{AP}')
+xlabel('time (s)')
+
+whitefig
