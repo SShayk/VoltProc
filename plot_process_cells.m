@@ -15,11 +15,12 @@ addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\analysis';
  
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251103\948\analysis_800Hz_60p_SLM';
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\948\FOV1\analysis';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\948\FOV1\analysis';
 
 % datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO1/20250829/948/800Hz/20250829-151115/analysis';
 % datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO1/20250829/850/FOV1/800Hz/20250829-152857/analysis';
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\831_2\FOV3_potential_reVolt\analysis';
+datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\831_2\FOV3_potential_reVolt\analysis_slit_3';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\831_2\FOV1\analysis';
 
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
@@ -28,17 +29,22 @@ tvec = (1:nframes)*(1/fs);
 
 %%%% 
 % ROIs to view 
-roi_use = 1:size(roimat,3);
-% roi_use = [1 5 7];
+% roi_use = 1:size(roimat,3);
+roi_use = [1 2 3 5 7 9];
 roimat = roimat(:,:,roi_use);
 tr = tr(roi_use,:);
 
 % valid timepoints
 k_valid = true(size(tvec));
-% k_valid(tvec<0.8) = 0;
-% k_valid(tvec>59) = 0;
-
-k_valid(tvec>20&tvec<30) = 0;
+k_valid(tvec<0.8) = 0;
+k_valid(tvec>59) = 0;
+% 
+% k_valid(tvec>52&tvec<53) = 0;
+% k_valid(tvec>1&tvec<2.5) = 0;
+% k_valid(tvec>41.1&tvec<41.4) = 0;
+% k_valid(tvec>48&tvec<48.5) = 0;
+% k_valid(tvec>13.9&tvec<14) = 0;
+% k_valid(tvec>17.6&tvec<18) = 0;
 
 %%%
 
@@ -56,6 +62,12 @@ F_proc = process_voltage(tr);
 %% get Vm and other baseline calculations
 [F_proc.F_sub, F_proc.F_nospike, F_proc.F_0, F_proc.params_baselines] = get_subthreshold_trace(tr, F_proc.t_s);
 
+%% plot all traces (use to find motion timepoints, etc)
+figure('Name','raw F')
+plot(tvec,-tr)
+xlabel('time (s)') 
+ylabel('-F')
+whitefig
 %% plot traces
 
 figure('Name','negative and detrended F')
@@ -269,3 +281,12 @@ ylabel('F_{AP}')
 xlabel('time (s)')
 
 whitefig
+
+%% for flipping through individual spikes
+% for nr = 1:NR
+%     subplot(1,NR,nr)
+%     for nk =  find(F_proc.t_s(nr,:)&k_valid)
+%         xlim(tvec(nk)+[-.04 .04])
+%         pause
+%     end
+% end
