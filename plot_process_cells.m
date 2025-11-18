@@ -169,33 +169,11 @@ title('SNR')
 whitefig
 
 
-figure('Name','SNR (traces)')
-YL = [0 0];
-hold on
-for nr = 1:NR
-    subplot(NR,1, nr)   
-    hold on
-    plot(tvec_valid,snr_trace(nr,k_valid),'k')
 
-     if nnz(F_proc.t_s(nr,:))
-        scatter(tvec_valid(F_proc.t_s(nr,k_valid)), snr_trace(nr,logical(F_proc.t_s(nr,:)&k_valid)),15,'r','filled')
-     end
-    if nr~= NR, set(gca().XAxis,'Visible', 'off'); end
-    xlim([1 tvec_valid(end)-1])
-    if min(ylim)<YL(1)
-        YL(1) = min(ylim);
-    end
-    if max(ylim)>YL(2)
-        YL(2) = max(ylim);
-    end
-    ylabel('SNR')
-end
-    xlabel('time (s)')
-for nr = 1:NR
-    subplot(NR,1, nr)   
-    ylim(YL)
-end
-whitefig
+H_snr_trace = plot_stacked(tvec_valid,snr_trace(:,k_valid),F_proc.t_s(:,k_valid),...
+snr_trace(:,k_valid),'SNR(traces)','SNR');
+standardize_ylims(H_snr_trace, [NR 1], [0 0])
+
 
 %% get dF/F
 
