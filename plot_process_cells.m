@@ -7,7 +7,6 @@ addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 %   make motion detection easier
 %   save invalid time points
 %   clear datadirs
-%   make stacked plot of long traces
 
 % load data
 % datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20250910/851/800Hz/analysis';
@@ -100,20 +99,9 @@ end
 xlabel('time (s)')
 whitefig
 %% plot detrended F
-figure('Name','detrended F only')
-for nr = 1:NR
-    subplot(NR,1, nr)
-    hold on
-    plot(tvec_valid,F_proc.F_det(nr,k_valid),'k')
-     if nnz(F_proc.t_s(nr,:))
-        scatter(tvec_valid(F_proc.t_s(nr,k_valid)), F_proc.F_det(nr,logical(F_proc.t_s(nr,:)&k_valid)),15,'r','filled')
-     end
-     if nr~= NR, set(gca().XAxis,'Visible', 'off'); end
-     box off
-     ylabel('-F')
-end
-xlabel('time (s)')
-whitefig
+
+plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),F_proc.t_s(:,k_valid),...
+F_proc.F_det(:,k_valid),'detrended F only','-F')
 
 %% plot only bleaching trend
 figure('Name','trend only'), hold on
@@ -123,14 +111,9 @@ end
 ylabel('F0'), xlabel('time (s)'), whitefig
 
 %% plot only Vm
-figure('Name','Vm'), hold on
-for nr = 1:NR
-    subplot(NR,1,nr)
-    plot(tvec_valid,F_proc.F_sub(nr,k_valid),'k','DisplayName',['ROI',num2str(nr)])
-    box off, ylabel('F0')
-    if nr~= NR, set(gca().XAxis,'Visible', 'off'); end
-end
- xlabel('time (s)'), whitefig
+plot_stacked(tvec_valid,F_proc.F_sub(:,k_valid),[],[],'Vm','F0')
+
+
 %% plot filtered data with spikes
 figure('Name','highpass-filtered data')
 YL = [0 0];
@@ -152,6 +135,8 @@ for nr = 1:NR
 
 end
      xlabel('time (s)')
+
+     
 
 for nr = 1:NR
     subplot(NR,1, nr)   
