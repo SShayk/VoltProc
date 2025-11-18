@@ -1,41 +1,20 @@
+clear, close all
+
 addpath(genpath('/ad/eng/users/s/s/sshayk/My Documents/MATLAB/SpikeTriggeredPlots'))
 addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\SpikeTriggeredPlots'))
 
-% impath = 'U:\eng_research_economo2\SFS\TICO2\20250725\948\FOV1\acq_800Hz_00002.raw';
-% impath = 'U:\eng_research_economo2\SFS\TICO2\20250725\870\FOV2\acq_800Hz_70percentpower_00003.raw';
-% impath = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20250703/FOV2/FOV2_SLM.raw';
-% impath = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20250802/871/FOV1/800Hz/acq.raw';
-% impath = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20250802/871/FOV4/800Hz_SLM/acq.raw';
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO1/20250829/850/FOV3/800Hz/20250829-154037/File_00001.raw';
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20250910/851/800Hz/acq.raw';
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20250930/Voltron_594/888/left_window/FOV1/800Hz/acq.raw';
- % impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251006/888/right_window/800Hz_100p/acq.raw';
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251005/888/100p_800Hz/acq.raw';
- 
-% impath = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20250802/871/FOV4/800Hz_SLM/acq.raw';
+impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251117/891_1/FOV3/acq_800Hz_100p_slit2_SLM.raw';
 
-% impath = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20251019/948/fov1/800Hz_100p_SLM/acq.raw';
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251019/948/fov2/z120_100p_800Hz/acq.raw';
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251019/948/fov2/z80_100p_800Hz/acq.raw';
-% impath = '\\ad\eng\research\eng_research_economo2\SFS\TICO2\20251019\948\fov2\z80_100p_800Hz\acq.raw';
-
-
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/948/acq_800Hz_60p_SLM.raw';
-% % impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/831_1/acq_800Hz_60p.raw';
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/831_2/acq_800Hz_60p_forSLMmask2.raw';
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251106/948/FOV1/800Hz_70p_SLM.raw';
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO1/20250829/948/800Hz/20250829-151115/File_00001.raw';
-
-% impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251103/831_2/acq_800Hz_60p_forSLMmask2.raw';
 
 [filedir, filename, filetype] = fileparts(impath);
-savedir = fullfile(filedir,'analysis');
+savedir = fullfile(filedir,['analysis_ ',filename]);
 if ~exist(savedir, 'dir'), mkdir(savedir), end
 
 all_files = sort({dir(fullfile(filedir,[filename,'*',filetype])).name});
 
 fs = 800;
 bg = 100;
+
 
 %% 
 reader = FrameReader(impath);
@@ -88,7 +67,7 @@ else
     end
 
     else
-        R = load(fullfile(file,location));
+        R = load(fullfile(location,file));
         maskmat = any(reshape(cell2mat(R.ROIs),size(im_ref,1),size(im_ref,2),[]),3);
         figure
         imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat).*0.2) );axis image;axis off;colormap(gray);drawnow
