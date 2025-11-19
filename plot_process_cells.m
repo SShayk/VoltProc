@@ -72,38 +72,30 @@ F_proc = process_voltage(tr);
 
 %% plot all traces (use to find motion timepoints, etc)
 figure('Name','raw F')
-plot(tvec,-tr)
-xlabel('time (s)') 
-ylabel('-F')
+plot(tvec,-tr), xlabel('time (s)'), ylabel('-F')
 whitefig
+
 %% plot traces
 
-figure('Name','negative and detrended F')
+plot_stacked(tvec_valid,-tr(:,k_valid),[],'negative and detrended F','-F');
 for nr = 1:NR
     subplot(NR,1, nr)
-    hold on
-    plot(tvec_valid,-tr(nr,k_valid),'k')
-            ylabel('-F')
-    yyaxis right, plot(tvec_valid,F_proc.F_det(nr,k_valid),'b')
+     yyaxis right, plot(tvec_valid,F_proc.F_det(nr,k_valid),'b')
     ax = gca;
     ax.YAxis(1).Color = [0 0 0];
 
     ax.YAxis(2).Color = [0 0 1];
-    box off
 
-    if nr~= NR, set(gca().XAxis,'Visible', 'off'); end
     if nr == 1
         legend('negative trace','highpass-filtered')
     end
 end
-xlabel('time (s)')
-whitefig
-%% plot detrended F
 
-plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),F_proc.t_s(:,k_valid),...
-F_proc.F_det(:,k_valid),'detrended F only','-F')
+%% plot detrended only F
 
-%% plot only bleaching trend
+plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),F_proc.t_s(:,k_valid),'detrended F only','-F')
+
+%% plot only bleaching trends
 figure('Name','trend only'), hold on
 for nr = 1:NR
     plot(tvec_valid,F_proc.F_0(nr,k_valid),'DisplayName',['ROI',num2str(nr)])
@@ -111,120 +103,43 @@ end
 ylabel('F0'), xlabel('time (s)'), whitefig
 
 %% plot only Vm
-plot_stacked(tvec_valid,F_proc.F_sub(:,k_valid),[],[],'Vm','F0')
+plot_stacked(tvec_valid,F_proc.F_sub(:,k_valid),[],'Vm','F0');
 
 
 %% plot filtered data with spikes
-figure('Name','highpass-filtered data')
-YL = [0 0];
+
+H_hp=plot_stacked(tvec_valid,F_proc.F_hp(:,k_valid),F_proc.t_s(:,k_valid),'highpass-filtered data','-F');
 for nr = 1:NR
     subplot(NR,1, nr)   
     hold on
-    plot(tvec_valid,F_proc.F_hp(nr,k_valid),'k')
     plot(tvec_valid,F_proc.F_hp_mean(nr,k_valid),'r')
-    scatter(tvec_valid(F_proc.t_s(nr,k_valid)), F_proc.F_hp(nr,F_proc.t_s(nr,:)&k_valid),'r','filled')
-    xlim([1 tvec_valid(end)-1])
-    if min(ylim)<YL(1)
-        YL(1) = min(ylim);
-    end
-    if max(ylim)>YL(2)
-        YL(2) = max(ylim);
-    end
-         ylabel('-F')
- if nr~= NR, set(gca().XAxis,'Visible', 'off'); end
-
-end
-     xlabel('time (s)')
-
-     
-
-for nr = 1:NR
-    subplot(NR,1, nr)   
-    ylim(YL)
     if nr ==1
         legend('highpass filtered (detrended and Vm removed)','moving average', 'spikes')
     end
 end
-whitefig
+standardize_ylims(H_hp, [NR 1], [0 0]);
 
 
 %% get SNR
 
-
 snr_trace = F_proc.F_det./F_proc.N_f;
 snr_AP = F_proc.F_AP./F_proc.N_f; % only valid at detected spikes
 
-figure('Name','SNR (AP)')
-hold on
-for nr = 1:NR
-    if nnz(F_proc.t_s(nr,k_valid))
-        scatter(nr*ones(1,nnz(F_proc.t_s(nr,k_valid))), snr_AP(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'filled')
-    end
-end
-xlabel('roi')
-xticks(1:NR)
-xlim([0.5, NR + 0.5])
-ylim([0 max(ylim)])
-title('SNR')
-whitefig
+scatter_AP(F_proc.t_s(:,k_valid),snr_AP(:,k_valid),'SNR (AP)','SNR');
 
-
-
-H_snr_trace = plot_stacked(tvec_valid,snr_trace(:,k_valid),F_proc.t_s(:,k_valid),...
-snr_trace(:,k_valid),'SNR(traces)','SNR');
+H_snr_trace = plot_stacked(tvec_valid,snr_trace(:,k_valid),F_proc.t_s(:,k_valid),'SNR(traces)','SNR');
 standardize_ylims(H_snr_trace, [NR 1], [0 0])
 
 
 %% get dF/F
 
-
 dff_trace = -(tr-F_proc.F_0)./F_proc.F_0;
 dff_AP = F_proc.F_AP./F_proc.F_0; % only valid at detected spikes
 
-figure('Name','DFF (AP)')
-hold on
-for nr = 1:NR
-    if nnz(F_proc.t_s(nr,:))
-        scatter(nr*ones(1,nnz(F_proc.t_s(nr,k_valid))), dff_AP(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'filled')
-    end
-end
-xlim([0.5, NR + 0.5])
-xticks(1:NR)
-ylim([0 max(ylim)])
-title('DF/F')
-whitefig
+scatter_AP(F_proc.t_s(:,k_valid),dff_trace(:,k_valid),'DFF (AP)','\DeltaF/F');
 
-
-figure('Name','DFF (traces)')
-YL = [0 0];
-hold on
-for nr = 1:NR
-    subplot(NR,1, nr)   
-    hold on
-    plot(tvec_valid,dff_trace(nr,k_valid),'k')
-
-     if nnz(F_proc.t_s(nr,:))
-        scatter(tvec_valid(F_proc.t_s(nr,k_valid)), dff_trace(nr,logical(F_proc.t_s(nr,:)&k_valid)),10,'r','filled')
-     end
- if nr~= NR, set(gca().XAxis,'Visible', 'off'); end
-
-    xlim([1 tvec_valid(end)-1])
-    if min(ylim)<YL(1)
-        YL(1) = min(ylim);
-    end
-    if max(ylim)>YL(2)
-        YL(2) = max(ylim);
-    end
-    ylabel('-\DeltaF/F')
-
-end
-    xlabel('time (s)')
-for nr = 1:NR
-    subplot(NR,1, nr)   
-    ylim(YL)
-end
-whitefig
-
+H_dff_trace = plot_stacked(tvec_valid,dff_trace(:,k_valid),F_proc.t_s(:,k_valid),'DFF(traces)','-\DeltaF/F');
+standardize_ylims(H_dff_trace, [NR 1], [0 0]);
 
 %% get d'
 gain = 0.25; % camera gain. to calculate photon count
@@ -237,20 +152,10 @@ for nr = 1:NR
     d_p(nr,:) = tau*fs*(1-exp(-1/(tau*fs)))*F_proc.F_AP(nr,:)*gain*NP./sqrt(F_proc.F_0(nr,:)*gain*NP);
 end
 % d_p = sqrt(((F_proc.F_AP.^2)./(F_proc.F_0*fs)));
-figure('Name','d prime')
-hold on
-for nr = 1:NR
-    if nnz(F_proc.t_s(nr,:))
-        scatter(nr*ones(1,nnz(F_proc.t_s(nr,k_valid))), d_p(nr,logical(F_proc.t_s(nr,:)&k_valid)),30,'filled')
-    end
-end
-xticks(1:NR)
-xlim([0.5, NR + 0.5])
-ylim([0 max(ylim)])
-title('d''')
-whitefig
 
-% %%
+scatter_AP(F_proc.t_s(:,k_valid),d_p(:,k_valid),'d prime','d');
+
+%%
 % figure
 % subplot(4,1,1), hold on
 % for nr = 1:NR
@@ -290,7 +195,7 @@ whitefig
 % end
 
 
-%% plot snippets on top of each other
+%% plot superimposed snippets
 YL_F = [-1 1];
 YL_DFF = [-0.01 0.01];
 figure('Name','snippets')
