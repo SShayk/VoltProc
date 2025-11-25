@@ -2,7 +2,7 @@
 addpath(genpath('\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage'))
 
 addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
-
+addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
 % TODO
 %   make motion detection easier
 %   save invalid time points
@@ -28,17 +28,18 @@ addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\831_2\FOV3_potential_reVolt\analysis_slit_3';
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\831_2\FOV1\analysis';
 
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251117\892_1\FOV5\analysis_acq_800Hz_100p_slit2_SLM';
+datadir = 'U:\eng_research_economo2\SFS\TICO2\20251124\887\FOV4\analysis_800Hz_slit20_p80';
 
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
 nframes = size(tr,2);
+fs = 800;
 tvec = (1:nframes)*(1/fs);
 
 %%%% 
 % ROIs to view 
 roi_use = 1:size(roimat,3);
-% roi_use = [1 2 3 5 7 9];
+% roi_use = [3 4 5];
 roimat = roimat(:,:,roi_use);
 tr = tr(roi_use,:);
 
@@ -46,6 +47,9 @@ tr = tr(roi_use,:);
 k_valid = true(size(tvec));
 k_valid(tvec<0.8) = 0;
 k_valid(tvec>29) = 0;
+
+
+k_valid(tvec<5) = 0;
 % 
 % k_valid(tvec>52&tvec<53) = 0;
 % k_valid(tvec>1&tvec<2.5) = 0;
@@ -93,7 +97,7 @@ end
 
 %% plot detrended only F
 
-plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),F_proc.t_s(:,k_valid),'detrended F only','-F')
+plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),F_proc.t_s(:,k_valid),'detrended F only','-F');
 
 %% plot only bleaching trends
 figure('Name','trend only'), hold on
@@ -128,7 +132,7 @@ snr_AP = F_proc.F_AP./F_proc.N_f; % only valid at detected spikes
 scatter_AP(F_proc.t_s(:,k_valid),snr_AP(:,k_valid),'SNR (AP)','SNR');
 
 H_snr_trace = plot_stacked(tvec_valid,snr_trace(:,k_valid),F_proc.t_s(:,k_valid),'SNR(traces)','SNR');
-standardize_ylims(H_snr_trace, [NR 1], [0 0])
+standardize_ylims(H_snr_trace, [NR 1], [0 0]);
 
 
 %% get dF/F

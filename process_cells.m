@@ -3,11 +3,11 @@ clear, close all
 addpath(genpath('/ad/eng/users/s/s/sshayk/My Documents/MATLAB/SpikeTriggeredPlots'))
 addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\SpikeTriggeredPlots'))
 
-impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251117/892_1/FOV5_replenished_water/acq_800Hz_100p_slit3_SLM.raw';
+impath = '\\engnas.bu.edu\research\eng_research_economo2\SFS\TICO2\20251122\992\FOV1\800H_slit15_p100_SLM.raw';
 
 
 [filedir, filename, filetype] = fileparts(impath);
-savedir = fullfile(filedir,['analysis_ ',filename]);
+savedir = fullfile(filedir,['analysis_',filename]);
 if ~exist(savedir, 'dir'), mkdir(savedir), end
 
 all_files = sort({dir(fullfile(filedir,[filename,'*',filetype])).name});

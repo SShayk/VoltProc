@@ -1,26 +1,18 @@
-clear, close all
+% part of signal extraction that must be interactive (can't be scripted on
+% HPC)
 
-addpath(genpath('/ad/eng/users/s/s/sshayk/My Documents/MATLAB/SpikeTriggeredPlots'))
-addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\SpikeTriggeredPlots'))
-
-impath = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251117/891_1/FOV3/acq_800Hz_100p_slit2_SLM.raw';
-
-
-[filedir, filename, filetype] = fileparts(impath);
-savedir = fullfile(filedir,['analysis_ ',filename]);
-if ~exist(savedir, 'dir'), mkdir(savedir), end
-
-all_files = sort({dir(fullfile(filedir,[filename,'*',filetype])).name});
-
-fs = 800;
-bg = 100;
+[filename, filedir] = uigetfile('*.raw','Select reference file');
+impath = fullfile(filedir, filename);
 
 
-%% 
 reader = FrameReader(impath);
 im_ref = mean(double(reader.getFrames(100)),3);
-       
-%% select ROIs
+
+k_dot = strfind(filename,'.');
+savedir = fullfile(filedir,['analysis_',filename(1:k_dot-1)]);
+if ~exist(savedir), mkdir(savedir),end
+
+%%
 if exist(fullfile(savedir,'rois.mat'),'file')
     load(fullfile(savedir,'rois.mat'))
     disp('loaded ROIs')
@@ -40,9 +32,7 @@ else
         e = drawellipse;
     end
 end
-
-
-%% for motion correction
+%%
 if exist(fullfile(savedir,'mask.mat'),'file')
     load(fullfile(savedir,'mask.mat'))
     disp('loaded mask')
@@ -73,48 +63,8 @@ else
         imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat).*0.2) );axis image;axis off;colormap(gray);drawnow
     end
 end
-%%
-
-
 
 %%
-NR = size(roimat,3);
-tr = [];
-translation =[];
-
-
-%% get traces for each file
-tic
-for nfile = 1:length(all_files)
-    
-    reader = FrameReader(fullfile(filedir,all_files{nfile}));
-
-    im = double(reader.getFrames(reader.maxFrames));
-    % motion correct
-    translation_cur = masked_phase_cross_correlation(im, im_ref,maskmat);
-    im_t = zeros(size(im));
-    for k = 1:size(im,3)
-        im_t(:,:,k) = circshift(im(:,:,k), translation_cur(k,:));
-    end
-        toc
-
-
-tr_cur = zeros(NR, size(im,3));
-for nf = 1:size(tr_cur,2)
-    cur_im = im_t(:,:,nf);
-    for nr = 1:NR
-        tr_cur(nr,nf) = mean(cur_im(logical(roimat(:,:,nr))));
-    end
-end
-    tr = [tr, tr_cur];
-    translation = cat(1, translation, translation_cur);
-    clearvars tr_cur translation_cur
-end
-tr = tr- bg;
-
-
-
-%% save
 if ~exist(fullfile(savedir,'rois.mat'),'file')
     save(fullfile(savedir,'rois.mat'),'roimat')
     disp('saved ROIs')
@@ -128,19 +78,3 @@ if ~exist(fullfile(savedir,'mask.mat'),'file') && exist('maskmat','var')
 else
     disp('did not save MC mask')
 end
-
-if ~exist(fullfile(savedir,'translation.mat'),'file') && exist('translation','var')
-    save(fullfile(savedir,'translation.mat'),'translation')
-    disp('saved translation')
-else
-    disp('did not save translation')
-end
-
-if ~exist(fullfile(savedir,'signal.mat'),'file')
-    save(fullfile(savedir,'signal.mat'),'tr','fs')
-    disp('saved signal')
-else
-    disp('did not save signal')
-end
-
-
