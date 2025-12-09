@@ -1,5 +1,7 @@
 % part of signal extraction that must be interactive (can't be scripted on
 % HPC)
+addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\SpikeTriggeredPlots'))
+addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage'))
 
 [filename, filedir] = uigetfile('*.raw','Select reference file');
 impath = fullfile(filedir, filename);

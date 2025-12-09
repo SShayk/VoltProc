@@ -11,7 +11,7 @@ addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
 % load data
 % datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20250910/851/800Hz/analysis';
 % datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20250930/Voltron_594/888/left_window/FOV1/800Hz/analysis';
-% datadir =  '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20251006/888/right_window/800Hz_100p/analysis';
+% datadir =  '/net/engnas/Research/eng_research_economo2/SFS/TICO2/2post0251006/888/right_window/800Hz_100p/analysis';
 % datadir = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20250802/871/FOV4/800Hz_SLM/analysis';
 
 % datadir = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20251019/948/fov1/800Hz_100p_SLM/analysis';
@@ -28,7 +28,13 @@ addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\831_2\FOV3_potential_reVolt\analysis_slit_3';
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251106\831_2\FOV1\analysis';
 
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251124\887\FOV4\analysis_800Hz_slit20_p80';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251126\898_4\FOV2\analysis_800Hz_100p';
+
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251202\831_1\FOV5\analysis_800Hz_100p';
+
+clear
+datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\887\FOV3\analysis_800Hz_100p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\892_2_animals\reg_headbar_left_window_no_snip\FOV3\analysis_800Hz_100p_SLM';
 
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
@@ -39,17 +45,17 @@ tvec = (1:nframes)*(1/fs);
 %%%% 
 % ROIs to view 
 roi_use = 1:size(roimat,3);
-% roi_use = [3 4 5];
+% roi_use = [1 2 4 8 9];
 roimat = roimat(:,:,roi_use);
 tr = tr(roi_use,:);
 
 % valid timepoints
 k_valid = true(size(tvec));
-k_valid(tvec<0.8) = 0;
-k_valid(tvec>29) = 0;
+k_valid(tvec<1) = 0;
+k_valid(tvec>(tvec(end)-1)) = 0;
 
 
-k_valid(tvec<5) = 0;
+% k_valid(tvec<5) = 0;
 % 
 % k_valid(tvec>52&tvec<53) = 0;
 % k_valid(tvec>1&tvec<2.5) = 0;
@@ -97,7 +103,7 @@ end
 
 %% plot detrended only F
 
-plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),F_proc.t_s(:,k_valid),'detrended F only','-F');
+plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),F_proc.t_s(:,k_valid),'detrended F only','-F',0);
 
 %% plot only bleaching trends
 figure('Name','trend only'), hold on
@@ -202,11 +208,12 @@ scatter_AP(F_proc.t_s(:,k_valid),d_p(:,k_valid),'d prime','d');
 %% plot superimposed snippets
 YL_F = [-1 1];
 YL_DFF = [-0.01 0.01];
+YL_SNR = [0 8];
 figure('Name','snippets')
 k_snip = -16:16;
 t_snip = k_snip*(1/fs);
 for nr = 1:NR
-    subplot(2,NR,nr), hold on
+    subplot(3,NR,nr), hold on
     for nk =  find(F_proc.t_s(nr,:)&k_valid)
         plot(t_snip, F_proc.F_hp(nr,nk + k_snip))
         YL_F(1) = min([YL_F(1), min(ylim)]);
@@ -214,7 +221,7 @@ for nr = 1:NR
     end
     title(['ROI ', num2str(nr)])
     if nr ==1, ylabel('-F'), end
-    subplot(2,NR,NR+nr), hold on
+    subplot(3,NR,NR+nr), hold on
     for nk =  find(F_proc.t_s(nr,:)&k_valid)
         plot(t_snip, dff_trace(nr,nk + k_snip))
         YL_DFF(1) = min([YL_DFF(1), min(ylim)]);
@@ -222,14 +229,59 @@ for nr = 1:NR
     end
     if nr ==1, ylabel('-\DeltaF/F'), end
     xlabel('time (s)')
+
+    subplot(3,NR,2*NR+nr), hold on
+    for nk =  find(F_proc.t_s(nr,:)&k_valid)
+        plot(t_snip, snr_trace(nr,nk + k_snip))
+        YL_SNR(1) = min([YL_SNR(1), min(ylim)]);
+        YL_SNR(2) = max([YL_SNR(2), max(ylim)]);
+    end
+    if nr ==1, ylabel('SNR'), end
+    xlabel('time (s)')
 end
 whitefig
 for nr = 1:NR
-    subplot(2,NR,nr), ylim(YL_F)
-     subplot(2,NR,NR+nr), ylim(YL_DFF)
+    subplot(3,NR,nr), ylim(YL_F)
+     subplot(3,NR,NR+nr), ylim(YL_DFF)
+     subplot(3,NR,2*NR+nr), ylim(YL_SNR)
 end
 %% 
 Nspikes = zeros(1,nr);
 for nr = 1:NR
 Nspikes(nr) = nnz(F_proc.t_s(nr,:)&k_valid);
 end
+
+%% show grayscale image with ROIs labeled
+strparts = strsplit(datadir,{'/','\'});
+imfile = [strparts{end}(10:end),'.raw'];
+reader = FrameReader(fullfile(strparts{1:end-1},imfile));
+
+load(fullfile(datadir,'mask.mat'))
+load(fullfile(datadir,'rois.mat'))
+load(fullfile(datadir,'translation.mat'))
+
+im = double(reader.getFrames(100));
+
+translation = gather(translation);
+for k = 1:size(im,3)
+        im_t(:,:,k) = circshift(im(:,:,k), translation(k,:));
+end
+im_av = mean(im_t,3);
+
+cents = zeros(2,NR);
+for nr = 1:NR
+    cents(:,nr) = gray_centroid(roimat(:,:,roi_use(nr)));
+end
+
+
+%%
+figure('Name','ROI display')
+imagesc(im_av), axis image, colormap gray
+
+for nr = 1:NR
+    text(cents(2,nr), cents(1,nr)-30,num2str(nr),'Color','y')
+end
+whitefig
+
+
+%% show photons per cell per frame
