@@ -3,6 +3,8 @@ addpath(genpath('\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage')
 
 addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
+
+clear
 % TODO
 %   make motion detection easier
 %   save invalid time points
@@ -30,11 +32,13 @@ addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
 
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251126\898_4\FOV2\analysis_800Hz_100p';
 
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251202\831_1\FOV5\analysis_800Hz_100p';
+datadir = 'U:\eng_research_economo2\SFS\TICO2\20251202\831_1\FOV5\analysis_800Hz_100p';
 
-clear
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\887\FOV3\analysis_800Hz_100p';
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\892_2_animals\reg_headbar_left_window_no_snip\FOV3\analysis_800Hz_100p_SLM';
+
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\887\FOV3\analysis_800Hz_100p_SLM';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\892_2_animals\reg_headbar_left_window_no_snip\FOV2\analysis_800Hz_100p';
+
+% datadir =  'U:\eng_research_economo2\SFS\TICO2\20251124\887\FOV1\analysis_800Hz_slit12_p80';
 
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
@@ -45,7 +49,7 @@ tvec = (1:nframes)*(1/fs);
 %%%% 
 % ROIs to view 
 roi_use = 1:size(roimat,3);
-% roi_use = [1 2 4 8 9];
+% roi_use = 1:4;
 roimat = roimat(:,:,roi_use);
 tr = tr(roi_use,:);
 
@@ -53,7 +57,7 @@ tr = tr(roi_use,:);
 k_valid = true(size(tvec));
 k_valid(tvec<1) = 0;
 k_valid(tvec>(tvec(end)-1)) = 0;
-
+k_valid(tvec>(29.5)) = 0;
 
 % k_valid(tvec<5) = 0;
 % 
@@ -285,3 +289,25 @@ whitefig
 
 
 %% show photons per cell per frame
+phot_im = (im_av - 100)*0.25;
+
+figure('Name','photons per cell per frame')
+subplot(1,2,1)
+imagesc(phot_im), colorbar, title('photon count'), axis image, axis off
+subplot(1,2,2)
+imagesc(phot_im.*sum(roimat,3)), axis image, axis off
+colorbar
+title('photons per cell')
+hold on
+cell_phot_singleframe = zeros(1,size(roimat,3));
+pixcount = zeros(1,size(roimat,3));
+for kr = 1:size(roimat,3)
+    c = gray_centroid(roimat(:,:,kr));
+    cell_phot_singleframe (kr) = sum(phot_im(find(roimat(:,:,kr))));
+    pixcount(kr) = nnz(roimat(:,:,kr));
+    text(round(c(2))+15,round(c(1)),sprintf('%d e-/frame', cell_phot_singleframe (kr)),'Color','c')
+    text(round(c(2))+15,round(c(1))-15,sprintf('%d pix', pixcount(kr)),'Color','m')
+end
+set(gca,'YDir','reverse')
+whitefig
+
