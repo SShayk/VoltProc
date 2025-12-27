@@ -1,0 +1,8 @@
+\\engnas.bu.edu\research\eng_research_economo2\SFS\TICO2\20251226\887\FOV2\800Hz_70p
+\\engnas.bu.edu\research\eng_research_economo2\SFS\TICO2\20251226\887\FOV1\800Hz_70p_1min
+\\engnas.bu.edu\research\eng_research_economo2\SFS\TICO2\20251226\887\FOV1\800Hz_100p_SLM_1min
+\\engnas.bu.edu\research\eng_research_economo2\SFS\TICO2\20251226\887\FOV2\800Hz_100p_SLM
+\\engnas.bu.edu\research\eng_research_economo2\SFS\TICO2\20251226\887\FOV3\800Hz_100p_SLM
+\\engnas.bu.edu\research\eng_research_economo2\SFS\TICO2\20251226\887\FOV3\800Hz_70p
+\\engnas.bu.edu\research\eng_research_economo2\SFS\TICO2\20251226\887\FOV4\800Hz_100p_SLM
+\\engnas.bu.edu\research\eng_research_economo2\SFS\TICO2\20251226\887\FOV4\800Hz_70p

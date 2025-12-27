@@ -80,3 +80,8 @@ if ~exist(fullfile(savedir,'mask.mat'),'file') && exist('maskmat','var')
 else
     disp('did not save MC mask')
 end
+
+%% add filename to list
+fid = fopen('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\MC_file.txt','a');
+fprintf(fid,[strrep([filedir,filename(1:k_dot-1)],'\','\\'),'\n']);
+fclose(fid);

@@ -36,7 +36,7 @@ for nfile = 1:length(all_files)
     end
         toc
 
-
+tic
 tr_cur = zeros(NR, size(im,3));
 for nf = 1:size(tr_cur,2)
     cur_im = im_t(:,:,nf);
@@ -49,7 +49,6 @@ end
     clearvars tr_cur translation_cur
 end
 tr = tr- bg;
-
 
 
 %% save

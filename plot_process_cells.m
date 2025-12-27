@@ -11,7 +11,7 @@ clear
 %   clear datadirs
 
 % load data
-% datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20250910/851/800Hz/analysis';
+%%% datadir = 'U:\eng_research_economo2\SFS\TICO2\20250910\851\800Hz\analysis';
 % datadir = '/net/engnas/Research/eng_research_economo2/SFS/TICO2/20250930/Voltron_594/888/left_window/FOV1/800Hz/analysis';
 % datadir =  '/net/engnas/Research/eng_research_economo2/SFS/TICO2/2post0251006/888/right_window/800Hz_100p/analysis';
 % datadir = '/ad/eng/research/eng_research_economo2/SFS/TICO2/20250802/871/FOV4/800Hz_SLM/analysis';
@@ -32,13 +32,16 @@ clear
 
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251126\898_4\FOV2\analysis_800Hz_100p';
 
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251202\831_1\FOV5\analysis_800Hz_100p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251202\831_1\FOV5\analysis_800Hz_100p';
 
+datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\887\FOV2\analysis_800Hz_100p';
 
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\887\FOV3\analysis_800Hz_100p_SLM';
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\892_2_animals\reg_headbar_left_window_no_snip\FOV2\analysis_800Hz_100p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\892_2_animals\reg_headbar_left_window_no_snip\FOV1\analysis_800Hz_100p';
 
 % datadir =  'U:\eng_research_economo2\SFS\TICO2\20251124\887\FOV1\analysis_800Hz_slit12_p80';
+
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251210\892_2\FOV4\analysis_800Hz_70p';
+
 
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
@@ -89,6 +92,11 @@ figure('Name','raw F')
 plot(tvec,-tr), xlabel('time (s)'), ylabel('-F')
 whitefig
 
+
+% %% show bleaching
+% figure('Name','trend')
+% plot(tvec,scale2max(lowpass(tr.',1,fs),2)), xlabel('time (s)'), ylabel('-F')
+% whitefig
 %% plot traces
 
 plot_stacked(tvec_valid,-tr(:,k_valid),[],'negative and detrended F','-F');
