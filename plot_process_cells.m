@@ -4,7 +4,7 @@ addpath(genpath('\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage')
 addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
 
-clear
+% clear
 % TODO
 %   make motion detection easier
 %   save invalid time points
@@ -34,14 +34,28 @@ clear
 
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251202\831_1\FOV5\analysis_800Hz_100p';
 
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\887\FOV2\analysis_800Hz_100p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\887\FOV2\analysis_800Hz_100p';
 
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\892_2_animals\reg_headbar_left_window_no_snip\FOV1\analysis_800Hz_100p';
 
-% datadir =  'U:\eng_research_economo2\SFS\TICO2\20251124\887\FOV1\analysis_800Hz_slit12_p80';
+% datadir =  'U:\eng_research_economo2\SFS\TICO2\20251124\887\FOV4\analysis_800Hz_slit14_p100';
 
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251210\892_2\FOV4\analysis_800Hz_70p';
 
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251117\891_1\FOV2\analysis_acq_800Hz_100p_slit2_SLM';
+datadir = 'U:\eng_research_economo2\SFS\TICO2\20251226\887\FOV2\analysis_800Hz_100p_SLM';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251226\892_leftwindow_regheadbar\FOV2\analysis_800Hz_100p_SLM';
+
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251122\992\FOV1\analysis_800H_slit15_p100_SLM';
+
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251126\898_4\FOV5\analysis_800Hz_100p';
+
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251117\892_1\FOV5_replenished_water\analysis_ acq_800Hz_100p_slit3_SLM';
+
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20260109\878_2\FOV1\analysis_800Hz_70p';
+
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20260109\887\FOV3\analysis_longacq_70p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251103\831_1\analysis';
 
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
@@ -52,7 +66,7 @@ tvec = (1:nframes)*(1/fs);
 %%%% 
 % ROIs to view 
 roi_use = 1:size(roimat,3);
-% roi_use = 1:4;
+% roi_use = 2;
 roimat = roimat(:,:,roi_use);
 tr = tr(roi_use,:);
 
@@ -60,7 +74,7 @@ tr = tr(roi_use,:);
 k_valid = true(size(tvec));
 k_valid(tvec<1) = 0;
 k_valid(tvec>(tvec(end)-1)) = 0;
-k_valid(tvec>(29.5)) = 0;
+% k_valid(tvec>(29.5)) = 0;
 
 % k_valid(tvec<5) = 0;
 % 
@@ -158,7 +172,7 @@ standardize_ylims(H_snr_trace, [NR 1], [0 0]);
 dff_trace = -(tr-F_proc.F_0)./F_proc.F_0;
 dff_AP = F_proc.F_AP./F_proc.F_0; % only valid at detected spikes
 
-scatter_AP(F_proc.t_s(:,k_valid),dff_trace(:,k_valid),'DFF (AP)','\DeltaF/F');
+scatter_AP(F_proc.t_s(:,k_valid),dff_AP(:,k_valid),'DFF (AP)','\DeltaF/F');
 
 H_dff_trace = plot_stacked(tvec_valid,dff_trace(:,k_valid),F_proc.t_s(:,k_valid),'DFF(traces)','-\DeltaF/F');
 standardize_ylims(H_dff_trace, [NR 1], [0 0]);

@@ -2,6 +2,8 @@
 % HPC)
 addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\SpikeTriggeredPlots'))
 addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage'))
+addpath(genpath('/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/analyze_voltage'))
+addpath(genpath('/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/SpikeTriggeredPlots'))
 
 [filename, filedir] = uigetfile('*.raw','Select reference file');
 impath = fullfile(filedir, filename);
@@ -15,7 +17,10 @@ savedir = fullfile(filedir,['analysis_',filename(1:k_dot-1)]);
 if ~exist(savedir), mkdir(savedir),end
 
 %%
-if exist(fullfile(savedir,'rois.mat'),'file')
+if exist('roimat','var')
+    figure
+    imagesc(im_ref.*(1 - double(any(roimat,3)).*0.2) );axis image;axis off;colormap(gray);
+elseif exist(fullfile(savedir,'rois.mat'),'file')
     load(fullfile(savedir,'rois.mat'))
     disp('loaded ROIs')
     figure('Name','loaded ROIs'), imagesc(im_ref.*(1 - double(any(roimat,3)).*0.2) );axis image;axis off;colormap(gray);drawnow
@@ -35,9 +40,14 @@ else
     end
 end
 %%
-if exist(fullfile(savedir,'mask.mat'),'file')
+if exist('maskmat','var')
+    figure
+    imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat).*0.2) );axis image;axis off;colormap(gray);
+elseif exist(fullfile(savedir,'mask.mat'),'file')
     load(fullfile(savedir,'mask.mat'))
     disp('loaded mask')
+    figure
+    imagesc(im_ref.*(1 - double(any(roimat,3)).*0.4 - double(maskmat).*0.2) );axis image;axis off;colormap(gray);
 else    
     [file,location] = uigetfile('.mat', 'select SLM ROIs, or cancel to hand-select ROIs');
     
@@ -81,7 +91,8 @@ else
     disp('did not save MC mask')
 end
 
-%% add filename to list
+% add filename to list
 fid = fopen('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\MC_file.txt','a');
 fprintf(fid,[strrep([filedir,filename(1:k_dot-1)],'\','\\'),'\n']);
 fclose(fid);
+disp('added to MC text file')
