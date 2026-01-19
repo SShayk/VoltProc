@@ -1,1 +1,6 @@
-
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260117/887/FOV2/800Hz_100p_SLM
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260117/887/FOV2/800Hz_70p
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260117/887/FOV3/800Hz_100p_SLM
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260117/887/FOV3/800Hz_70p
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260117/887/FOV4/800Hz_100p_SLM
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260117/887/FOV4/800Hz_70p
