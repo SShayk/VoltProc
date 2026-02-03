@@ -54,7 +54,12 @@ F_nospike = F_raw;
 for nr = 1:size(F_raw,1)
     for ks = find(k_spikes(nr,:))
         % replace window around current spike with moving average
-        F_nospike(nr,ks+nos_window) = mm_all(nr,ks+nos_window);
+        if ~(nnz(ks+nos_window < 1) || nnz(ks+nos_window > size(F_raw,2)))
+            F_nospike(nr,ks+nos_window) = mm_all(nr,ks+nos_window);
+        else
+            nos_window_cur = ks + nos_window((ks + nos_window>=1) & (ks + nos_window<=size(F_raw,2)));
+            F_nospike(nr,nos_window_cur) = mm_all(nr,nos_window_cur);
+        end
     end
 end
 

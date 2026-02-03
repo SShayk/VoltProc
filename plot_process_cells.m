@@ -4,7 +4,7 @@ addpath(genpath('\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage')
 addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
 
-% clear
+clear
 % TODO
 %   make motion detection easier
 %   save invalid time points
@@ -32,31 +32,38 @@ addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
 
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251126\898_4\FOV2\analysis_800Hz_100p';
 
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251202\831_1\FOV5\analysis_800Hz_100p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251202\831_1\FOV1\analysis_800Hz_z40_100p';
 
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\887\FOV2\analysis_800Hz_100p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\887\FOV2\analysis_800Hz_100p_SLM';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\892_2_animals\reg_headbar_left_window_no_snip\FOV2\analysis_800Hz_100p_SLM';
 
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251208\892_2_animals\reg_headbar_left_window_no_snip\FOV1\analysis_800Hz_100p';
+% datadir =  'U:\eng_research_economo2\SFS\TICO2\20251124\887\FOV5\analysis_800Hz_slit14_p80_SLM';
 
-% datadir =  'U:\eng_research_economo2\SFS\TICO2\20251124\887\FOV4\analysis_800Hz_slit14_p100';
-
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251210\892_2\FOV4\analysis_800Hz_70p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251210\892_2\FOV4\analysis_800Hz_100p_SLM';
 
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251117\891_1\FOV2\analysis_acq_800Hz_100p_slit2_SLM';
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20251226\887\FOV2\analysis_800Hz_100p_SLM';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251226\887\FOV4\analysis_800Hz_100p_SLM';
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251226\892_leftwindow_regheadbar\FOV2\analysis_800Hz_100p_SLM';
 
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251122\992\FOV1\analysis_800H_slit15_p100_SLM';
 
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251126\898_4\FOV5\analysis_800Hz_100p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251126\898_4\FOV4\analysis_800Hz_100p';
 
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251117\892_1\FOV5_replenished_water\analysis_ acq_800Hz_100p_slit3_SLM';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251117\892_1\FOV5_replenished_water\analysis_acq_800Hz_100p_slit3_SLM';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20251117\892_1\FOV5\analysis_acq_800Hz_100p_slit3_SLM';
 
-% datadir = 'U:\eng_research_economo2\SFS\TICO2\20260109\878_2\FOV1\analysis_800Hz_70p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20260109\878_2\FOV1\analysis_800Hz_100p_SLM';
+
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20260109\887\FOV2\analysis_800Hz_70p_SLM';
 
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20260109\887\FOV3\analysis_longacq_70p';
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20251103\831_1\analysis';
 
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20260117\887\FOV4\analysis_800Hz_100p_SLM';
+
+
+datadir = 'U:\eng_research_economo2\SFS\TICO2\20260202\878_3\FOV2\analysis_800Hz_60p';
+%%
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
 nframes = size(tr,2);
@@ -99,7 +106,7 @@ F_proc = process_voltage(tr);
 [F_proc.t_s, F_proc.parameters_kspikes] = get_spike_locations(F_proc.F_det, F_proc.F_AP, F_proc.N_f, F_proc.dF_ur, F_proc.dF_dr); 
     
 %% get Vm and other baseline calculations
-[F_proc.F_sub, F_proc.F_nospike, F_proc.F_0, F_proc.params_baselines] = get_subthreshold_trace(tr, F_proc.t_s);
+  [F_proc.F_sub, F_proc.F_nospike, F_proc.F_0, F_proc.params_baselines] = get_subthreshold_trace(tr, F_proc.t_s);
 
 %% plot all traces (use to find motion timepoints, etc)
 figure('Name','raw F')
@@ -130,6 +137,7 @@ end
 %% plot detrended only F
 
 plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),F_proc.t_s(:,k_valid),'detrended F only','-F',0);
+plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),[],'detrended F only (no spikes)','-F',0);
 
 %% plot only bleaching trends
 figure('Name','trend only'), hold on
@@ -302,7 +310,7 @@ end
 
 %%
 figure('Name','ROI display')
-imagesc(im_av), axis image, colormap gray
+imagesc(im_av-100), axis image, colormap gray
 
 for nr = 1:NR
     text(cents(2,nr), cents(1,nr)-30,num2str(nr),'Color','y')
