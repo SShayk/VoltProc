@@ -10,7 +10,7 @@ L = readlines(mc_file);
 
 for n = 1:length(L)
     curstr = L{n};
-    k = strfind(curstr,'\');cars
+    k = strfind(curstr,'\');
     if isempty(k)
         k = strfind(curstr,'/');
     end

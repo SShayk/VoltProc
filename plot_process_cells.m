@@ -62,7 +62,7 @@ clear
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20260117\887\FOV4\analysis_800Hz_100p_SLM';
 
 
-datadir = 'U:\eng_research_economo2\SFS\TICO2\20260202\878_3\FOV2\analysis_800Hz_60p';
+% datadir = 'U:\eng_research_economo2\SFS\TICO2\20260202\878_4\FOV2\analysis_800Hz_80p_SLM';
 %%
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))

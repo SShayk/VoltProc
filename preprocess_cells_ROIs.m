@@ -96,9 +96,9 @@ end
 % add filename to list
 fpath_desktop = '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\MC_file.txt';
 if exist(fpath_desktop,'file')
-    fid = fopen('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\MC_file.txt','a');
+    fid = fopen(fpath_desktop,'a');
 else
-    fid = fopen('/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/analyze_voltage/MC_file.txt');
+    fid = fopen('/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/analyze_voltage/MC_file.txt','a');
 end
 fprintf(fid,[strrep([filedir,filename(1:k_dot-1)],'\','\\'),'\n']);
 fclose(fid);
