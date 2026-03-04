@@ -5,6 +5,7 @@ addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
 
 clear
+close all
 % TODO
 %   make motion detection easier
 %   save invalid time points
@@ -63,6 +64,12 @@ clear
 
 
 % datadir = 'U:\eng_research_economo2\SFS\TICO2\20260202\878_4\FOV2\analysis_800Hz_80p_SLM';
+
+datadir = pwd;
+datadir = strrep(datadir,'\\ad\eng\research\','U:\');
+
+strparts = strsplit(datadir,{'/','\'});
+titlestr = [strparts{end-2},'/',strparts{end-3},'/',strparts{end-1},'/',strparts{end}(10:end)];
 %%
 load(fullfile(datadir,'signal.mat'))
 load(fullfile(datadir,'rois.mat'))
@@ -73,7 +80,7 @@ tvec = (1:nframes)*(1/fs);
 %%%% 
 % ROIs to view 
 roi_use = 1:size(roimat,3);
-% roi_use = 2;
+% roi_use = [1 4 6];
 roimat = roimat(:,:,roi_use);
 tr = tr(roi_use,:);
 
@@ -82,7 +89,8 @@ k_valid = true(size(tvec));
 k_valid(tvec<1) = 0;
 k_valid(tvec>(tvec(end)-1)) = 0;
 % k_valid(tvec>(29.5)) = 0;
-
+% k_valid(tvec<5) = 0;
+% k_valid(tvec>8 & tvec <11) = 0;
 % k_valid(tvec<5) = 0;
 % 
 % k_valid(tvec>52&tvec<53) = 0;
@@ -112,6 +120,7 @@ F_proc = process_voltage(tr);
 figure('Name','raw F')
 plot(tvec,-tr), xlabel('time (s)'), ylabel('-F')
 whitefig
+title(titlestr)
 
 
 % %% show bleaching
@@ -120,7 +129,7 @@ whitefig
 % whitefig
 %% plot traces
 
-plot_stacked(tvec_valid,-tr(:,k_valid),[],'negative and detrended F','-F');
+plot_stacked(tvec_valid,-tr(:,k_valid),[],['negative and detrended F      ',titlestr],'-F');
 for nr = 1:NR
     subplot(NR,1, nr)
      yyaxis right, plot(tvec_valid,F_proc.F_det(nr,k_valid),'b')
@@ -136,23 +145,24 @@ end
 
 %% plot detrended only F
 
-plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),F_proc.t_s(:,k_valid),'detrended F only','-F',0);
-plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),[],'detrended F only (no spikes)','-F',0);
+plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),F_proc.t_s(:,k_valid),['detrended F only      ',titlestr],'-F',0);
+plot_stacked(tvec_valid,F_proc.F_det(:,k_valid),[],['detrended F only (no spikes)      ',titlestr],'-F',0);
 
+%{
 %% plot only bleaching trends
 figure('Name','trend only'), hold on
 for nr = 1:NR
     plot(tvec_valid,F_proc.F_0(nr,k_valid),'DisplayName',['ROI',num2str(nr)])
 end
 ylabel('F0'), xlabel('time (s)'), whitefig
-
+title(titlestr)
 %% plot only Vm
-plot_stacked(tvec_valid,F_proc.F_sub(:,k_valid),[],'Vm','F0');
-
+plot_stacked(tvec_valid,F_proc.F_sub(:,k_valid),[],['Vm      ',titlestr],'F0');
+%}
 
 %% plot filtered data with spikes
 
-H_hp=plot_stacked(tvec_valid,F_proc.F_hp(:,k_valid),F_proc.t_s(:,k_valid),'highpass-filtered data','-F');
+H_hp=plot_stacked(tvec_valid,F_proc.F_hp(:,k_valid),F_proc.t_s(:,k_valid),['highpass-filtered data      ',titlestr],'-F');
 for nr = 1:NR
     subplot(NR,1, nr)   
     hold on
@@ -169,9 +179,9 @@ standardize_ylims(H_hp, [NR 1], [0 0]);
 snr_trace = F_proc.F_det./F_proc.N_f;
 snr_AP = F_proc.F_AP./F_proc.N_f; % only valid at detected spikes
 
-scatter_AP(F_proc.t_s(:,k_valid),snr_AP(:,k_valid),'SNR (AP)','SNR');
+scatter_AP(F_proc.t_s(:,k_valid),snr_AP(:,k_valid),['SNR (AP)      ',titlestr],'SNR');
 
-H_snr_trace = plot_stacked(tvec_valid,snr_trace(:,k_valid),F_proc.t_s(:,k_valid),'SNR(traces)','SNR');
+H_snr_trace = plot_stacked(tvec_valid,snr_trace(:,k_valid),F_proc.t_s(:,k_valid),['SNR(traces)      ',titlestr],'SNR');
 standardize_ylims(H_snr_trace, [NR 1], [0 0]);
 
 
@@ -180,11 +190,12 @@ standardize_ylims(H_snr_trace, [NR 1], [0 0]);
 dff_trace = -(tr-F_proc.F_0)./F_proc.F_0;
 dff_AP = F_proc.F_AP./F_proc.F_0; % only valid at detected spikes
 
-scatter_AP(F_proc.t_s(:,k_valid),dff_AP(:,k_valid),'DFF (AP)','\DeltaF/F');
+scatter_AP(F_proc.t_s(:,k_valid),dff_AP(:,k_valid),['DFF (AP)      ',titlestr],'\DeltaF/F');
 
-H_dff_trace = plot_stacked(tvec_valid,dff_trace(:,k_valid),F_proc.t_s(:,k_valid),'DFF(traces)','-\DeltaF/F');
+H_dff_trace = plot_stacked(tvec_valid,dff_trace(:,k_valid),F_proc.t_s(:,k_valid),['DFF(traces)      ',titlestr],'-\DeltaF/F');
 standardize_ylims(H_dff_trace, [NR 1], [0 0]);
 
+%{
 %% get d'
 gain = 0.25; % camera gain. to calculate photon count
 tau = 0.8*1e-3; % decay time [s] (assumed 0.8 ms for Voltron2 and ReVolt, as in TICO paper)
@@ -197,8 +208,8 @@ for nr = 1:NR
 end
 % d_p = sqrt(((F_proc.F_AP.^2)./(F_proc.F_0*fs)));
 
-scatter_AP(F_proc.t_s(:,k_valid),d_p(:,k_valid),'d prime','d');
-
+scatter_AP(F_proc.t_s(:,k_valid),d_p(:,k_valid),['d prime      ',titlestr],'d');
+%}
 %%
 % figure
 % subplot(4,1,1), hold on
@@ -243,7 +254,7 @@ scatter_AP(F_proc.t_s(:,k_valid),d_p(:,k_valid),'d prime','d');
 YL_F = [-1 1];
 YL_DFF = [-0.01 0.01];
 YL_SNR = [0 8];
-figure('Name','snippets')
+figure('Name',['snippets      ',titlestr])
 k_snip = -16:16;
 t_snip = k_snip*(1/fs);
 for nr = 1:NR
@@ -253,7 +264,7 @@ for nr = 1:NR
         YL_F(1) = min([YL_F(1), min(ylim)]);
         YL_F(2) = max([YL_F(2), max(ylim)]);
     end
-    title(['ROI ', num2str(nr)])
+    title(['ROI ', num2str(roi_use(nr))])
     if nr ==1, ylabel('-F'), end
     subplot(3,NR,NR+nr), hold on
     for nk =  find(F_proc.t_s(nr,:)&k_valid)
@@ -286,7 +297,6 @@ Nspikes(nr) = nnz(F_proc.t_s(nr,:)&k_valid);
 end
 
 %% show grayscale image with ROIs labeled
-strparts = strsplit(datadir,{'/','\'});
 imfile = [strparts{end}(10:end),'.raw'];
 reader = FrameReader(fullfile(strparts{1:end-1},imfile));
 
@@ -311,17 +321,19 @@ end
 %%
 figure('Name','ROI display')
 imagesc(im_av-100), axis image, colormap gray
+title(titlestr)
 
 for nr = 1:NR
-    text(cents(2,nr), cents(1,nr)-30,num2str(nr),'Color','y')
+    text(cents(2,nr), cents(1,nr)-30,num2str(roi_use(nr)),'Color','y')
 end
 whitefig
 
-
+%{
 %% show photons per cell per frame
+
 phot_im = (im_av - 100)*0.25;
 
-figure('Name','photons per cell per frame')
+figure('Name',['photons per cell per frame       ',titlestr])
 subplot(1,2,1)
 imagesc(phot_im), colorbar, title('photon count'), axis image, axis off
 subplot(1,2,2)
@@ -340,4 +352,26 @@ for kr = 1:size(roimat,3)
 end
 set(gca,'YDir','reverse')
 whitefig
+%}
 
+nfile = 1;
+while exist(fullfile(datadir,['analysis_',num2str(nfile)]),'dir')
+    nfile = nfile +1;
+end
+folderstr = ['analysis_',num2str(nfile)];
+
+mkdir(fullfile(datadir,folderstr))
+
+save(fullfile(datadir,folderstr,'analysis.mat'),'F_proc','roi_use','datadir','tvec_valid','dff_AP','snr_AP','k_valid')
+
+figHandles = findall(0, 'Type', 'figure');
+for iFig = 1:length(figHandles)
+    currentFig = figHandles(iFig);
+    
+    % Get figure number to use in filename
+    figName = strrep(num2str(get(currentFig, 'Name')),'/','_');
+    
+
+    % Save as a .fig file to be able to modify it later in MATLAB
+    savefig(currentFig, fullfile(datadir,folderstr,[figName '.fig']));
+end
