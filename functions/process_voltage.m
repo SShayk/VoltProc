@@ -30,6 +30,7 @@ if nargin > 1
     addParameter(p,'fSubthreshold',f_hp_vm, @(x)isnumeric(x));
     addParameter(p,'Tmean',t_av_hp, @(x)isnumeric(x));
     addParameter(p,'Tstdev',t_av_nf, @(x)isnumeric(x));
+    addParameter(p,'highpasstype',0, @(x)islogical(x));
     parse(p, tr, varargin{:})
 
     fs = p.Results.fs;
@@ -37,12 +38,22 @@ if nargin > 1
     f_hp_vm = p.Results.fSubthreshold;
     t_av_hp = p.Results.Tmean;
     t_av_nf = p.Results.Tstdev;
+    hp_type = p.Results.highpasstype;
 end
 
-    Fp.F_det = -highpass(tr.',f_hp_det,fs).'; % detrend to remove bleaching decay, 
-                                                % and invert so that Voltron spikes are positive
 
-    Fp.F_hp = highpass(Fp.F_det.',f_hp_vm, fs).'; % highpass filter again to remove subthreshold activity
+if hp_type
+       
+    for nr = 1:size(tr,1)
+       Fp.F_det(nr,:) = -tr(nr,:) - fastsmooth(-tr(nr,:), fs/f_hp_det,1,1);
+       mvmn = fastsmooth(Fp.F_det(nr,:), round(fs/f_hp_vm),1,1);
+       Fp.F_hp(nr,:) = Fp.F_det(nr,:) - mvmn;
+   end
+else
+       Fp.F_det = -highpass(tr.',f_hp_det,fs).'; % detrend to remove bleaching decay, 
+                                                % and invert so that Voltron spikes are positive
+       Fp.F_hp = highpass(Fp.F_det.',f_hp_vm, fs).'; % highpass filter again to remove subthreshold activity
+end
     Fp.F_hp_mean = movmean(Fp.F_hp.',2*round(t_av_hp*fs)).'; % get baseline of highpass filtered trace
 
     Fp.F_dr  = min(cat(3,Fp.F_hp, Fp.F_hp_mean),[],3); % get downward-rectified trace (noise only)

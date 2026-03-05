@@ -5,7 +5,12 @@ addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
 
 clear
-close all
+% close all
+
+highpass_movfilter = 1;
+if highpass_movfilter
+    disp('using moving mean for highpass calculation')
+end
 % TODO
 %   make motion detection easier
 %   save invalid time points
@@ -107,7 +112,7 @@ NR = size(roimat,3);
 
 
 %% get F values 
-F_proc = process_voltage(tr);
+F_proc = process_voltage(tr,'highpasstype',logical(highpass_movfilter));
 [F_proc.F_AP, F_proc.params_AP] = calc_APs(F_proc.F_det);
 
 %% get spike locations
@@ -353,6 +358,8 @@ end
 set(gca,'YDir','reverse')
 whitefig
 %}
+
+F_proc.highpass_movfilter = highpass_movfilter;
 
 nfile = 1;
 while exist(fullfile(datadir,['analysis_',num2str(nfile)]),'dir')
