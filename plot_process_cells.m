@@ -5,9 +5,9 @@ addpath '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/utilities'
 addpath '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\utilities'
 
 clear
-% close all
+close all
 
-highpass_movfilter = 1;
+highpass_movfilter = 0;
 if highpass_movfilter
     disp('using moving mean for highpass calculation')
 end
@@ -95,7 +95,7 @@ k_valid(tvec<1) = 0;
 k_valid(tvec>(tvec(end)-1)) = 0;
 % k_valid(tvec>(29.5)) = 0;
 % k_valid(tvec<5) = 0;
-% k_valid(tvec>8 & tvec <11) = 0;
+% k_valid(tvec>9 & tvec <13.5) = 0;
 % k_valid(tvec<5) = 0;
 % 
 % k_valid(tvec>52&tvec<53) = 0;
