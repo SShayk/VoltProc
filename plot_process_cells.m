@@ -94,16 +94,12 @@ k_valid = true(size(tvec));
 k_valid(tvec<1) = 0;
 k_valid(tvec>(tvec(end)-1)) = 0;
 % k_valid(tvec>(29.5)) = 0;
-% k_valid(tvec<5) = 0;
-% k_valid(tvec>9 & tvec <13.5) = 0;
-% k_valid(tvec<5) = 0;
-% 
-% k_valid(tvec>52&tvec<53) = 0;
-% k_valid(tvec>1&tvec<2.5) = 0;
-% k_valid(tvec>41.1&tvec<41.4) = 0;
-% k_valid(tvec>48&tvec<48.5) = 0;
-% k_valid(tvec>13.9&tvec<14) = 0;
-% k_valid(tvec>17.6&tvec<18) = 0;
+k_valid(tvec<6) = 0;
+k_valid(tvec>9.3 & tvec <10.5) = 0;
+k_valid(tvec>12 & tvec <13) = 0;
+k_valid(tvec>15.5 & tvec <16.5) = 0;
+k_valid(tvec>19.5 & tvec <21.3) = 0;
+k_valid(tvec>24.5) = 0;
 
 %%%
 
@@ -126,7 +122,8 @@ figure('Name','raw F')
 plot(tvec,-tr), xlabel('time (s)'), ylabel('-F')
 whitefig
 title(titlestr)
-
+disp('check if timepoints need to be removed')
+pause() % pause in case valid timepoints need to be adjusted
 
 % %% show bleaching
 % figure('Name','trend')
@@ -333,7 +330,7 @@ for nr = 1:NR
 end
 whitefig
 
-%{
+
 %% show photons per cell per frame
 
 phot_im = (im_av - 100)*0.25;
@@ -357,8 +354,9 @@ for kr = 1:size(roimat,3)
 end
 set(gca,'YDir','reverse')
 whitefig
-%}
+%
 
+%%
 F_proc.highpass_movfilter = highpass_movfilter;
 
 nfile = 1;
@@ -369,7 +367,7 @@ folderstr = ['analysis_',num2str(nfile)];
 
 mkdir(fullfile(datadir,folderstr))
 
-save(fullfile(datadir,folderstr,'analysis.mat'),'F_proc','roi_use','datadir','tvec_valid','dff_AP','snr_AP','k_valid')
+save(fullfile(datadir,folderstr,'analysis.mat'),'F_proc','roi_use','datadir','tvec_valid','dff_AP','snr_AP','k_valid','cell_phot_singleframe','pixcount')
 
 figHandles = findall(0, 'Type', 'figure');
 for iFig = 1:length(figHandles)

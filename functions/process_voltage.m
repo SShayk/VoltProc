@@ -39,6 +39,8 @@ if nargin > 1
     t_av_hp = p.Results.Tmean;
     t_av_nf = p.Results.Tstdev;
     hp_type = p.Results.highpasstype;
+else
+    hp_type = 0;
 end
 
 
