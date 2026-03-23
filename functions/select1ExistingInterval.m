@@ -46,24 +46,22 @@ function [selectedIntervals, selectedIndices] = select1ExistingInterval(axHandle
     
     selectedIndices = [];
     
-    fprintf('Click within intervals to select/deselect them\n');
-    fprintf('Right-click or press Enter when done\n\n');
+    % fprintf('Click within intervals to select/deselect them\n');
+    % fprintf('Right-click or press Enter when done\n\n');
     
-    title(axHandle, 'Click intervals to select (highlighted in yellow)');
+    % title(axHandle, 'Click intervals to select (highlighted in yellow)');
     
         [x, ~, ~] = ginput(1);
         
         
         % Find which interval was clicked
         for i = 1:size(intervals, 1)
+            intervals(i,:) = sort(intervals(i,:));
             if x >= intervals(i,1) && x <= intervals(i,2)
-                clickedIdx = i;
+                selectedIndices = i;
             end
         end
         
-        if isempty(clickedIdx)
-            fprintf('Click was outside all intervals\n');
-        end
     
         % Return selected intervals
         selectedIntervals = intervals(selectedIndices, :);
