@@ -94,12 +94,12 @@ k_valid = true(size(tvec));
 k_valid(tvec<1) = 0;
 k_valid(tvec>(tvec(end)-1)) = 0;
 % k_valid(tvec>(29.5)) = 0;
-k_valid(tvec<6) = 0;
-k_valid(tvec>9.3 & tvec <10.5) = 0;
-k_valid(tvec>12 & tvec <13) = 0;
-k_valid(tvec>15.5 & tvec <16.5) = 0;
-k_valid(tvec>19.5 & tvec <21.3) = 0;
-k_valid(tvec>24.5) = 0;
+k_valid(tvec<4.3) = 0;
+k_valid(tvec>8.9 & tvec <13.4) = 0;
+% k_valid(tvec>12 & tvec <13) = 0;
+% k_valid(tvec>15.5 & tvec <16.5) = 0;
+% k_valid(tvec>19.5 & tvec <21.3) = 0;
+% k_valid(tvec>24.5) = 0;
 
 %%%
 
@@ -121,6 +121,7 @@ F_proc = process_voltage(tr,'highpasstype',logical(highpass_movfilter));
 figure('Name','raw F')
 plot(tvec,-tr), xlabel('time (s)'), ylabel('-F')
 whitefig
+
 title(titlestr)
 disp('check if timepoints need to be removed')
 pause() % pause in case valid timepoints need to be adjusted
