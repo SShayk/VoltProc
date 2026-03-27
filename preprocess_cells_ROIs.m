@@ -8,7 +8,6 @@ addpath(genpath('/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/SpikeTriggered
 [filename, filedir] = uigetfile('*.raw','Select reference file');
 impath = fullfile(filedir, filename);
 
-
 reader = FrameReader(impath);
 im_ref = mean(double(reader.getFrames(100)),3);
 
