@@ -19,6 +19,6 @@ for n = 1:length(L)
     end
     k = k(end);
     MC_and_extract(curstr(1:(k-1)),curstr((k+1):end))
-    fprintf(f1,'%s',curstr);
+    fprintf(f1,'%s\n',curstr);
 end
 fclose(f1);

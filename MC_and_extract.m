@@ -17,7 +17,11 @@ im_ref = mean(double(reader.getFrames(100)),3);
 load(fullfile(savedir,'rois.mat'))
 load(fullfile(savedir,'mask.mat'))
 
-bg = 100;
+if strcmp(reader.dtype,'uint16')
+    bg = 100;
+else
+    bg = 20;
+end
 NR = size(roimat,3);
 tr = [];
 translation =[];
