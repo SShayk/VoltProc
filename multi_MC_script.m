@@ -13,6 +13,7 @@ L = readlines(mc_file);
 f1 = fopen(mc_fin_file,'a');
 for n = 1:length(L)
     curstr = L{n};
+    if ~isempty(curstr)
     k = strfind(curstr,'\');
     if isempty(k)
         k = strfind(curstr,'/');
@@ -20,5 +21,6 @@ for n = 1:length(L)
     k = k(end);
     MC_and_extract(curstr(1:(k-1)),curstr((k+1):end))
     fprintf(f1,'%s\n',curstr);
+    end
 end
 fclose(f1);
