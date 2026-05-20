@@ -64,7 +64,6 @@ for nr = 1:size(F_raw,1)
 end
 
 % bandpass to get Vm
-F_nospike(isnan(F_nospike)) = 0;
 F_subthresh = bandpass(F_nospike.', F_bp, fs).';
 
 F0 = lowpass(F_nospike.',F_lp,fs).';
