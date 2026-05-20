@@ -22,6 +22,8 @@ f_hp_vm = 50; % Hz, frequency at which to filter out Vm fluctuations
 t_av_hp = 0.2; % s (+/-), moving average window to get baseline of highpass filtered trace
 t_av_nf = 1; % s (+/-), moving stdev window to get noise floor of trace
 
+
+tr(isnan(tr)) = 0;
 if nargin > 1
     p = inputParser;
     addRequired(p,'tr',@isnumeric)

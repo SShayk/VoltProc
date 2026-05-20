@@ -1,3 +1,4 @@
 *.asv
 MC_file.txt
 /analysis/
+*.tiff

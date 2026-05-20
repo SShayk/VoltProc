@@ -1,4 +1,4 @@
-clear
+% clear
 
 % datadir = '\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\analysis\988_2_20260309_FOV2_800Hz_70p\analysis_2\analysis.mat';
 % R_plot = [2 3 9 11];
@@ -21,9 +21,17 @@ clear
 % t_plot = [16 20];
 
 
-datadir = '\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\analysis\991_20260309_FOV1_800Hz_70p\analysis_1\analysis.mat';
-R_plot = [1 3 4];
-t_plot = [14 16];
+% datadir = '\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\analysis\991_20260309_FOV1_800Hz_70p\analysis_1\analysis.mat';
+% R_plot = [1 3 4];
+% t_plot = [14 16];
+
+% datadir = '\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\analysis\988_2_20260413_800Hz_speed_sensitivity_smaller_800Hz_100p\analysis_2\analysis.mat';
+% R_plot = [1 6 8 9 27 28 29 30 32];
+% t_plot = [23.5 24.5];
+
+datadir = '\\ad\eng\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\analysis\988_2_20260413_800Hz_sensitivity_smaller_800Hz_100p\analysis_1\analysis.mat';
+R_plot = [1 6 8 9 27 28 29 30 32];
+t_plot = [11 13];
 %%
 dat = load(datadir);
 
@@ -91,8 +99,16 @@ for nr = 1:size(dat.dff_AP,1)
     cents(:,nr) = gray_centroid(roimat(:,:,nr));
 end
 
+if strcmp(reader.dtype,'uint16')
+    bg = 100;
+    gain = 0.25;
+else
+    bg = 20;
+    gain = 1.15;
+end
+
 figure
-imagesc(im_av-100)
+imagesc((im_av-bg)*gain)
 axis image
 colormap gray
 axis off

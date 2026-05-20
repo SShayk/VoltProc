@@ -1,5 +1,5 @@
 mc_file = '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\MC_file.txt';
-mc_fin_file = '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\MC_copmleted_file.txt';
+mc_fin_file = '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\MC_completed_file.txt';
 
 if exist(mc_file,'file')
     addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\SpikeTriggeredPlots'))
@@ -7,12 +7,13 @@ else
    mc_file =  '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/analyze_voltage/MC_file.txt';
    mc_fin_file =  '/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/analyze_voltage/MC_completed_file.txt';
    addpath(genpath('/net/engnas/Users/s/s/sshayk/My Documents/MATLAB/SpikeTriggeredPlots'))
-end
+end 
 
 L = readlines(mc_file);
 f1 = fopen(mc_fin_file,'a');
 for n = 1:length(L)
     curstr = L{n};
+    if ~isempty(curstr)
     k = strfind(curstr,'\');
     if isempty(k)
         k = strfind(curstr,'/');
@@ -20,5 +21,6 @@ for n = 1:length(L)
     k = k(end);
     MC_and_extract(curstr(1:(k-1)),curstr((k+1):end))
     fprintf(f1,'%s\n',curstr);
+    end
 end
 fclose(f1);
