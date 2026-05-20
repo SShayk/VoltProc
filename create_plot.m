@@ -90,9 +90,16 @@ cents = zeros(2,size(dat.dff_AP,1));
 for nr = 1:size(dat.dff_AP,1)
     cents(:,nr) = gray_centroid(roimat(:,:,nr));
 end
+if strcmp(reader.dtype,'uint16')
+    bg = 100;
+    gain = 0.25;
+else
+    bg = 20;
+    gain = 1.15;
+end
 
 figure
-imagesc(im_av-100)
+imagesc((im_av-bg)*gain)
 axis image
 colormap gray
 axis off
