@@ -8,6 +8,8 @@ function Fp = process_voltage(tr, varargin)
 %       'fSubthreshold': frequency in Hz at which to highpass signal for removing Vm fluctuations (default 50)
 %       'Tmean': time window in seconds used to get baseline of filtered trace (default 0.2)
 %       'Tstdev': time window in seconds used to get standard deviation to calculate noise (default 1)
+%       'detrended': true if tr is ALREADY detrended and inverted (spikes positive),
+%           e.g. F_det from an earlier call on a longer trace; skips the fDetrend step (default false)
 %           'Tmean' and 'Tstdev' are the window width on either side of the current frame, so ~half of length of full window
 % Outputs:
 %   Fp: struct containing each trace/component as a field, as well as a
@@ -33,6 +35,7 @@ if nargin > 1
     addParameter(p,'Tmean',t_av_hp, @(x)isnumeric(x));
     addParameter(p,'Tstdev',t_av_nf, @(x)isnumeric(x));
     addParameter(p,'highpasstype',0, @(x)islogical(x));
+    addParameter(p,'detrended',false, @(x)islogical(x));
     parse(p, tr, varargin{:})
 
     fs = p.Results.fs;
@@ -41,12 +44,24 @@ if nargin > 1
     t_av_hp = p.Results.Tmean;
     t_av_nf = p.Results.Tstdev;
     hp_type = p.Results.highpasstype;
+    detrended = p.Results.detrended;
 else
     hp_type = 0;
+    detrended = false;
 end
 
 
-if hp_type
+if detrended
+    Fp.F_det = tr; % input is already detrended and inverted
+    if hp_type
+        for nr = 1:size(tr,1)
+            mvmn = fastsmooth(Fp.F_det(nr,:), round(fs/f_hp_vm),1,1);
+            Fp.F_hp(nr,:) = Fp.F_det(nr,:) - mvmn;
+        end
+    else
+        Fp.F_hp = highpass(Fp.F_det.',f_hp_vm, fs).'; % highpass filter to remove subthreshold activity
+    end
+elseif hp_type
        
     for nr = 1:size(tr,1)
        Fp.F_det(nr,:) = -tr(nr,:) - fastsmooth(-tr(nr,:), fs/f_hp_det,1,1);
@@ -76,4 +91,5 @@ Fp.parameters.f_hp_det = f_hp_det;
 Fp.parameters.f_hp_vm = f_hp_vm;
 Fp.parameters.t_av_hp = t_av_hp;
 Fp.parameters.t_av_nf = t_av_nf;
+Fp.parameters.detrended = detrended;
 end
