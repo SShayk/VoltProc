@@ -52,7 +52,7 @@ end
 
 
 % condition 1
-C1 = dF_ur > movmean(dF_ur,2*(t_rect_baseline*fs)) + N_factor_12*movstd(dF_dr,2*(t_rect_baseline*fs));
+C1 = dF_ur > movmean(dF_ur,2*(t_rect_baseline*fs),2) + N_factor_12*movstd(dF_dr,2*(t_rect_baseline*fs));
 % condition 2
 C2 = F_det > movmean(F_det,2*(t_det_baseline*fs),2) + N_factor_12*N_f;
 % condition 3
