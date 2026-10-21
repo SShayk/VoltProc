@@ -1,5 +1,5 @@
 mc_file = '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\MC_file.txt';
-mc_fin_file = '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\MC_copmleted_file.txt';
+mc_fin_file = '\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\analyze_voltage\MC_completed_file.txt';
 
 if exist(mc_file,'file')
     addpath(genpath('\\engnas.bu.edu\users\s\s\sshayk\My Documents\MATLAB\SpikeTriggeredPlots'))

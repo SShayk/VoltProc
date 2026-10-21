@@ -1,0 +1,16 @@
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260522/976/FOV1/800Hz_80p_SLM_opto
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260522/976/FOV2/800Hz_80p_SLM_opto
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260522/976/FOV2/800Hz_50p_opto
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260602/901_2/FOV1/800Hz_100p_SLM
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260602/901_2/FOV1/800Hz_100p_SLM_optox2
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260602/901_2/FOV1/800Hz_100p_SLM_optox2_widerslit
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260602/901_2/FOV2/800Hz_100p_medslit_SLM
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260602/901_2/FOV2/800Hz_100p_medslit_SLM_optox2
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260602/976/FOV1/800Hz_100p_SLM_medslit
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260602/976/FOV1/800Hz_100p_SLM_medslit_optox2
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20261002/602/FOV1/1000p_800Hz
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20261002/602/FOV2/100p_800Hz
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260811/602/800Hz
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260811/602/800Hz_SLM
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260811/602/FOV2/800Hz
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260811/602/FOV2/800Hz_SLM

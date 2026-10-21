@@ -1,0 +1,4 @@
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260811/602/800Hz
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260811/602/800Hz_SLM
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260811/602/FOV2/800Hz
+/net/engnas/Research/eng_research_economo2/SFS/TICO2/20260811/602/FOV2/800Hz_SLM
